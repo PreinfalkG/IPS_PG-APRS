@@ -1,0 +1,12 @@
+{
+    "id": "{8580D002-BA2C-4CE7-92BC-087AB3AC4359}",
+    "name": "APRS Network",
+    "author": "PreinfalkG",
+    "url": "",
+    "compatibility": {
+        "version": "6.4"
+    },
+    "version": "1.39",
+    "build": 20231110,
+    "date": 1699607359
+}

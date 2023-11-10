@@ -1,0 +1,53 @@
+{
+    "elements": [
+        { "name": "AutoUpdate", "type": "CheckBox", "caption": "Auto Send Netbeacon" },
+        { "name": "TimerInterval", "type": "NumberSpinner", "caption": "Netbeacon Interval [ms]" },
+        { "name": "aprsLogin", "type": "ValidationTextBox", "caption": "APRS Connection String" },
+        { "name": "aprsNetbeacon", "type": "ValidationTextBox", "caption": "ARPS Netbeacon" },
+		
+        { "name": "telegramBotToken", "type": "ValidationTextBox", "caption": "TelegramBot API Token" },
+        { "name": "telegramChatId", "type": "ValidationTextBox", "caption": "Telegram ChatId" },
+
+        { "name": "LogLevel", "type": "Select", "caption": "Debug/Log Level",
+            "options": [
+                { "label": "ALL", "value": 9 },
+                { "label": "TEST", "value": 8 },
+                { "label": "TRACE", "value": 7 },
+                { "label": "COMMUNICATION", "value": 6 },
+                { "label": "DEBUG", "value": 5 },
+				{ "label": "INFO", "value": 4 },
+                { "label": "WARN", "value": 3 },
+                { "label": "ERROR", "value": 2 },
+				{ "label": "FATAL", "value": 1 },
+                { "label": "OFF", "value": 0 }
+        ]}     
+    ],
+    "actions": [
+        {
+            "name": "Text",
+            "type": "ValidationTextBox",
+            "caption": "Text"
+        },
+        {
+            "type": "Button",
+            "caption": "Connect APRS",
+            "onClick": "APRS_ConnectAPRS($id, $Text);"
+        },
+        {
+            "type": "Button",
+            "caption": "Send Telegram Test Message",
+            "onClick": "APRS_SendTelegramMessage($id, 'Test <b>Message</b> from APRS Modul', 'Modul Form');"
+        },        
+        {
+            "type": "Button",
+            "caption": "Reset Counter Variables",
+            "onClick": "APRS_ResetCounterVariables($id, $Text);"
+        },         
+        {
+            "type": "Button",
+            "caption": "Delete Logged Data",
+            "onClick": "APRS_DeleteLoggedData($id, $Text);"
+        }           
+    ],
+    "status": []
+}
