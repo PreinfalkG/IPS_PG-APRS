@@ -138,7 +138,6 @@ trait COMMON {
 		IPS_SetHidden($scriptId, false);
 		IPS_SetDisabled($scriptId, false);
 
-
 		$position = 300;
 		$varId = $this->RegisterVariableBoolean("saveToDB", "Save to MySQL DB", "~Switch", $position);
 		IPS_SetVariableCustomAction($varId, $custActionScriptId);
@@ -175,213 +174,259 @@ trait COMMON {
 
 		// ------------------------------------------------------------------------------------------------------------------------------------------
 		// Data Viewer
+		if(true) {
+			$position = 400;
 
-		$position = 400;
-		$varId = $this->RegisterCustVariable("dataViewerEnabled", $categoryIdDataViewer, "Data Viewer Enabled", VARIABLETYPE_BOOLEAN, $position, "~Switch", $custActionScriptId);
-		$this->SetMyVariable("id_dataViewerEnabled", $varId);
+			$dummyIdDataViewerSettings = $this->CreateDummyInstance("Data Viewer Settings", $categoryIdDataViewer);
 
-		$position++;
-		$varIdDistance = $this->RegisterCustVariable("dataViewer_Distance", $categoryIdDataViewer, "Filter Distance to PG1ADW", VARIABLETYPE_FLOAT, $position, "APRS_Distance.km", $custActionScriptId);
-		$this->SetMyVariable("id_dataViewer_Distance", $varIdDistance);
-		//SetValue($varIdDistance, 4000);
+			$position++;
+			$varId = $this->RegisterCustVariable("dataViewerEnabled", $dummyIdDataViewerSettings, "Enabled", VARIABLETYPE_BOOLEAN, $position, "~Switch", $custActionScriptId);
+			$this->SetMyVariable("id_dataViewerEnabled", $varId);
 
-		$position++;
-		$varId = $this->RegisterCustVariable("dataViewer_Match", $categoryIdDataViewer, "Filter RawData (wildcards '*' | '?')", VARIABLETYPE_STRING, $position, "~TextBox", $custActionScriptId);
-		$this->SetMyVariable("id_dataViewer_Match", $varId);
-        if(empty(GetValue($varId))) { SetValue($varId, "*"); }
+			$position++;
+			$varIdDistance = $this->RegisterCustVariable("dataViewer_Distance", $dummyIdDataViewerSettings, "Filter Distance to PG1ADW", VARIABLETYPE_FLOAT, $position, "APRS_Distance.km", $custActionScriptId);
+			$this->SetMyVariable("id_dataViewer_Distance", $varIdDistance);
+			//SetValue($varIdDistance, 4000);
 
-		$position++;
-		$varId = $this->RegisterCustVariable("dataViewer_StopOnNextMatch", $categoryIdDataViewer, "Stop on next Filter Match", VARIABLETYPE_BOOLEAN, $position, "~Switch", $custActionScriptId);
-		$this->SetMyVariable("id_dataViewer_StopOnNextMatch", $varId);
+			$position++;
+			$varId = $this->RegisterCustVariable("dataViewer_Match", $dummyIdDataViewerSettings, "Filter RawData (wildcards '*' | '?')", VARIABLETYPE_STRING, $position, "~TextBox", $custActionScriptId);
+			$this->SetMyVariable("id_dataViewer_Match", $varId);
+			if(empty(GetValue($varId))) { SetValue($varId, "*"); }
 
-		$position++;
-		$varId = $this->RegisterCustVariable("dataViewer", $categoryIdDataViewer, "Data Viewer", VARIABLETYPE_STRING, $position, "~TextBox", "");
-		$this->SetMyVariable("id_dataViewer", $varId);
+			$position++;
+			$varId = $this->RegisterCustVariable("dataViewer_StopOnNextMatch", $dummyIdDataViewerSettings, "Stop on next Filter Match", VARIABLETYPE_BOOLEAN, $position, "~Switch", $custActionScriptId);
+			$this->SetMyVariable("id_dataViewer_StopOnNextMatch", $varId);
+
+			$position++;
+			$varId = $this->RegisterCustVariable("dataViewerCnt", $categoryIdDataViewer, "Match Cnt", VARIABLETYPE_INTEGER, $position, "", "");
+			$this->SetMyVariable("id_dataViewerCnt", $varId);
+			IPS_SetDisabled($varId, true);	
+
+			$position++;
+			$scriptId = @IPS_GetObjectIDByIdent("resetDataViewerVariables", $categoryIdDataViewer);
+			if($scriptId === false) {
+				$scriptContent = sprintf("<? APRS_ResetDataViewerVariables(%s, 'Script'); ?>", $this->InstanceID);
+				$scriptId = $this->RegisterScript("resetDataViewerVariables", "Reset Variables", $scriptContent, $position);
+				IPS_SetParent($scriptId, $categoryIdDataViewer);
+				IPS_SetHidden($scriptId, false);
+				IPS_SetDisabled($scriptId, false);
+			}
+			$this->SetMyVariable("id_resetDataViewerVariables", $scriptId);
+
+			$position++;
+			$varId = $this->RegisterCustVariable("dataViewer", $categoryIdDataViewer, "Data Viewer", VARIABLETYPE_STRING, $position, "~TextBox", "");
+			$this->SetMyVariable("id_dataViewer", $varId);
+		
+		}
 
 
 		// ------------------------------------------------------------------------------------------------------------------------------------------
 		// Notification 
+		if(true) {
+			$position = 510;
+			$dummyIdNotify = $this->CreateDummyInstance("Telegram Notification", $categoryIdNotifications);
 
-		$position = 510;
-		$dummyIdNotify = $this->CreateDummyInstance("Telegram Notification", $categoryIdNotifications);
+			$position++;
+			$varId = $this->RegisterCustVariable("notifyEnabled", $dummyIdNotify, "Enable Notify", VARIABLETYPE_BOOLEAN, $position, "~Switch", $custActionScriptId);
+			$this->SetMyVariable("id_notifyEnabled", $varId);
 
-		$varId = $this->RegisterCustVariable("notifyEnabled", $dummyIdNotify, "Enable Notify", VARIABLETYPE_BOOLEAN, $position, "~Switch", $custActionScriptId);
-		$this->SetMyVariable("id_notifyEnabled", $varId);
-		
-		$position++;
-		$varId = $this->RegisterCustVariable("notifySondenTyp", $dummyIdNotify, "Notify 'Sonden Typ'", VARIABLETYPE_STRING, $position, "~TextBox", $custActionScriptId);
-		$this->SetMyVariable("id_notifySondenTyp", $varId);
-		SetValue($varId, "M10,M20");
+			$position++;
+			$varIdDistance = $this->RegisterCustVariable("notifyDistance", $dummyIdNotify, "Distance", VARIABLETYPE_FLOAT, $position, "APRS_Distance.km", $custActionScriptId);
+			$this->SetMyVariable("id_notifyDistance", $varIdDistance);
 
-		$position++;
-		$varId = $this->RegisterCustVariable("notifyMessage", $dummyIdNotify, "Notify Last Message", VARIABLETYPE_STRING, $position, "", "");
-		$this->SetMyVariable("id_notifyMessage", $varId);
-		
-		$position++;
-		$varId = $this->RegisterCustVariable("notifyJsonStore", $dummyIdNotify, "JSON Store", VARIABLETYPE_STRING, $position, "", "");		
-		$this->SetMyVariable("id_notifyJsonStore", $varId);
+			$position++;
+			$varId = $this->RegisterCustVariable("notifyOzon", $dummyIdNotify, "Ozon", VARIABLETYPE_BOOLEAN, $position, "~Switch", $custActionScriptId);
+			$this->SetMyVariable("id_notifyOzon", $varId);	
 
-		$position++;
-		$varId = $this->RegisterCustVariable("notifyJsonStoreCnt", $dummyIdNotify, "JSON Store Cnt", VARIABLETYPE_INTEGER, $position, "", "");
-		$this->SetMyVariable("id_notifyJsonStoreCnt", $varId);
+			$position++;
+			$varId = $this->RegisterCustVariable("notifySondenTyp", $dummyIdNotify, "Sonden Typ", VARIABLETYPE_STRING, $position, "~TextBox", $custActionScriptId);
+			$this->SetMyVariable("id_notifySondenTyp", $varId);
+			SetValue($varId, "disabled");
 
-		$position++;
-		$scriptId = @IPS_GetObjectIDByIdent("resetNotifyVariables", $dummyIdNotify);
-		if($scriptId === false) {
-			$scriptContent = sprintf("<? APRS_ResetNotifyVariables(%s, 'Script'); ?>", $this->InstanceID);
-			$scriptId = $this->RegisterScript("resetNotifyVariables", "Reset Variables", $scriptContent, $position);
-			IPS_SetParent($scriptId, $dummyIdNotify);
-			IPS_SetHidden($scriptId, false);
-			IPS_SetDisabled($scriptId, false);
+			$position++;
+			$varId = $this->RegisterCustVariable("notifyMatch", $dummyIdNotify, "Filter RawData (wildcards '*' | '?')", VARIABLETYPE_STRING, $position, "~TextBox", $custActionScriptId);
+			$this->SetMyVariable("id_notifyMatch", $varId);
+			if(empty(GetValue($varId))) { SetValue($varId, "disabled"); }
+
+			$position++;
+			$varId = $this->RegisterCustVariable("notifyJsonStore", $dummyIdNotify, "JSON Store", VARIABLETYPE_STRING, $position, "", "");		
+			$this->SetMyVariable("id_notifyJsonStore", $varId);
+			IPS_SetDisabled($varId, true);
+
+			$position++;
+			$varId = $this->RegisterCustVariable("notifyJsonStoreCnt", $dummyIdNotify, "JSON Store Cnt", VARIABLETYPE_INTEGER, $position, "", "");
+			$this->SetMyVariable("id_notifyJsonStoreCnt", $varId);
+			IPS_SetDisabled($varId, true);
+
+			$position++;
+			$varId = $this->RegisterCustVariable("notifyCnt", $dummyIdNotify, "Messages Sent", VARIABLETYPE_INTEGER, $position, "", "");
+			$this->SetMyVariable("id_notifyCnt", $varId);
+			IPS_SetDisabled($varId, true);	
+
+			$position++;
+			$varId = $this->RegisterCustVariable("notifyMessage", $dummyIdNotify, "Last Message Sent", VARIABLETYPE_STRING, $position, "~HTMLBox", "");
+			$this->SetMyVariable("id_notifyMessage", $varId);
+			IPS_SetDisabled($varId, true);
+
+			$position++;
+			$scriptId = @IPS_GetObjectIDByIdent("resetNotifyVariables", $dummyIdNotify);
+			if($scriptId === false) {
+				$scriptContent = sprintf("<? APRS_ResetNotifyVariables(%s, 'Script'); ?>", $this->InstanceID);
+				$scriptId = $this->RegisterScript("resetNotifyVariables", "Reset", $scriptContent, $position);
+				IPS_SetParent($scriptId, $dummyIdNotify);
+				IPS_SetHidden($scriptId, false);
+				IPS_SetDisabled($scriptId, false);
+			}
 		}
-
-
 		// ------------------------------------------------------------------------------------------------------------------------------------------
 		// Notification PG1ADW20
+		if(true) {
+			$position = 520;
+			$dummyIdNotifyPG1ADW20 = $this->CreateDummyInstance("Telegram Notification PG1ADW20", $categoryIdNotifications);
 
-		$position = 520;
-		$dummyIdNotifyPG1ADW20 = $this->CreateDummyInstance("Telegram Notification PG1ADW20", $categoryIdNotifications);
+			$varId = $this->RegisterCustVariable("notifyPG1ADW", $dummyIdNotifyPG1ADW20, "Enable Notify", VARIABLETYPE_BOOLEAN, $position, "~Switch", $custActionScriptId);
+			$this->SetMyVariable("id_notifyPG1ADW", $varId);
 
-		$varId = $this->RegisterCustVariable("notifyPG1ADW", $dummyIdNotifyPG1ADW20, "PG1ADW20 - Enable Notify", VARIABLETYPE_BOOLEAN, $position, "~Switch", $custActionScriptId);
-		$this->SetMyVariable("id_notifyPG1ADW", $varId);
+			$position++;
+			$varIdDistance = $this->RegisterCustVariable("notifyPG1ADW_Distance", $dummyIdNotifyPG1ADW20, "Distance", VARIABLETYPE_FLOAT, $position, "APRS_Distance.km", $custActionScriptId);
+			$this->SetMyVariable("id_notifyPG1ADW_Distance", $varIdDistance);
+			SetValue($varIdDistance, 20);
 
-		$position++;
-		$varIdDistance = $this->RegisterCustVariable("notifyPG1ADW_Distance", $dummyIdNotifyPG1ADW20, "PG1ADW20 - Distance", VARIABLETYPE_FLOAT, $position, "APRS_Distance.km", $custActionScriptId);
-		$this->SetMyVariable("id_notifyPG1ADW_Distance", $varIdDistance);
-		SetValue($varIdDistance, 20);
+			$position++;
+			$varIdAltitude = $this->RegisterCustVariable("notifyPG1ADW_Altitude", $dummyIdNotifyPG1ADW20, "Altitude", VARIABLETYPE_FLOAT, $position, "APRS_Distance.km", $custActionScriptId);
+			$this->SetMyVariable("id_notifyPG1ADW_Altitude", $varIdAltitude);
+			SetValue($varIdAltitude, 4000);
 
-		$position++;
-		$varIdAltitude = $this->RegisterCustVariable("notifyPG1ADW_Altitude", $dummyIdNotifyPG1ADW20, "PG1ADW20 - Altitude", VARIABLETYPE_FLOAT, $position, "APRS_Distance.km", $custActionScriptId);
-		$this->SetMyVariable("id_notifyPG1ADW_Altitude", $varIdAltitude);
-		SetValue($varIdAltitude, 4000);
+			$position++;
+			$scriptId = @IPS_GetObjectIDByIdent("setDefault", $dummyIdNotifyPG1ADW20);
+			if($scriptId === false) {		
+				$scriptContent = sprintf("<? SetValue(%d, 20); SetValue(%d, 5000); ?>", $varIdDistance, $varIdAltitude);
+				$scriptId = $this->RegisterScript("setDefault", "Set Default Distance/Altitude", $scriptContent, $position);
+				IPS_SetParent($scriptId, $dummyIdNotifyPG1ADW20);
+				IPS_SetHidden($scriptId, false);
+				IPS_SetDisabled($scriptId, false);
+			}
 
-		$position++;
-		$scriptId = @IPS_GetObjectIDByIdent("setDefault", $dummyIdNotifyPG1ADW20);
-		if($scriptId === false) {		
-			$scriptContent = sprintf("<? SetValue(%d, 20); SetValue(%d, 5000); ?>", $varIdDistance, $varIdAltitude);
-			$scriptId = $this->RegisterScript("setDefault", "Set Default Distance/Altitude", $scriptContent, $position);
-			IPS_SetParent($scriptId, $dummyIdNotifyPG1ADW20);
-			IPS_SetHidden($scriptId, false);
-			IPS_SetDisabled($scriptId, false);
-		}
-	
-		$position++;
-		$varId = $this->RegisterCustVariable("notifyPG1ADW_Message", $dummyIdNotifyPG1ADW20, "PG1ADW20 - Last Message", VARIABLETYPE_STRING, $position, "", "");
-		$this->SetMyVariable("id_notifyPG1ADW_Message", $varId);
+			
+			$position++;
+			$varId = $this->RegisterCustVariable("notifyPG1ADW_JsonStore", $dummyIdNotifyPG1ADW20, "JSON Store", VARIABLETYPE_STRING, $position, "", "");		
+			$this->SetMyVariable("id_notifyPG1ADW_JsonStore", $varId);
+			IPS_SetDisabled($varId, true);
 
-		$position++;
-		$varId = $this->RegisterCustVariable("notifyPG1ADW_JsonStore", $dummyIdNotifyPG1ADW20, "JSON Store", VARIABLETYPE_STRING, $position, "", "");		
-		$this->SetMyVariable("id_notifyPG1ADW_JsonStore", $varId);
+			$position++;
+			$varId = $this->RegisterCustVariable("notifyPG1ADW_JsonStoreCnt", $dummyIdNotifyPG1ADW20, "JSON Store Cnt", VARIABLETYPE_INTEGER, $position, "", "");
+			$this->SetMyVariable("id_notifyPG1ADW_JsonStoreCnt", $varId);
+			IPS_SetDisabled($varId, true);
 
-		$position++;
-		$varId = $this->RegisterCustVariable("notifyPG1ADW_JsonStoreCnt", $dummyIdNotifyPG1ADW20, "JSON Store Cnt", VARIABLETYPE_INTEGER, $position, "", "");
-		$this->SetMyVariable("id_notifyPG1ADW_JsonStoreCnt", $varId);
+			$position++;
+			$varId = $this->RegisterCustVariable("notifyPG1ADW_Cnt", $dummyIdNotifyPG1ADW20, "Messages Sent", VARIABLETYPE_INTEGER, $position, "", "");
+			$this->SetMyVariable("id_notifyPG1ADW_Cnt", $varId);
+			IPS_SetDisabled($varId, true);	
 
-		$position++;
-		$scriptId = @IPS_GetObjectIDByIdent("resetNotifyPG1ADWVariables", $dummyIdNotifyPG1ADW20);
-		if($scriptId === false) {
-			$scriptContent = sprintf("<? APRS_ResetPG1ADWNotifyVariables(%s, 'Script'); ?>", $this->InstanceID);
-			$scriptId = $this->RegisterScript("resetNotifyPG1ADWVariables", "Reset Variables", $scriptContent, $position);
-			IPS_SetParent($scriptId, $dummyIdNotifyPG1ADW20);
-			IPS_SetHidden($scriptId, false);
-			IPS_SetDisabled($scriptId, false);
+			$position++;
+			$varId = $this->RegisterCustVariable("notifyPG1ADW_Message", $dummyIdNotifyPG1ADW20, "Last Message Sent", VARIABLETYPE_STRING, $position, "~HTMLBox", "");
+			$this->SetMyVariable("id_notifyPG1ADW_Message", $varId);
+			IPS_SetDisabled($varId, true);
+
+			$position++;
+			$scriptId = @IPS_GetObjectIDByIdent("resetNotifyPG1ADWVariables", $dummyIdNotifyPG1ADW20);
+			if($scriptId === false) {
+				$scriptContent = sprintf("<? APRS_ResetPG1ADWNotifyVariables(%s, 'Script'); ?>", $this->InstanceID);
+				$scriptId = $this->RegisterScript("resetNotifyPG1ADWVariables", "Reset Variables", $scriptContent, $position);
+				IPS_SetParent($scriptId, $dummyIdNotifyPG1ADW20);
+				IPS_SetHidden($scriptId, false);
+				IPS_SetDisabled($scriptId, false);
+			}
 		}
 
 		// ------------------------------------------------------------------------------------------------------------------------------------------
 		// Create MinMax Category Variabels
-		$position = 600;
+		if(true) {
+			$position = 600;
 
-		$varIdMinMaxDistance = @IPS_GetObjectIDByIdent("minMax_Distance", $categoryIdMinMax);
-		if($varIdMinMaxDistance === false) {
-			$varIdMinMaxDistance = IPS_CreateVariable(VARIABLETYPE_FLOAT);
-			IPS_SetParent($varIdMinMaxDistance, $categoryIdMinMax);
-			IPS_SetIdent($varIdMinMaxDistance, "minMax_Distance");
-			IPS_SetName($varIdMinMaxDistance, "Distance for MinMax Tracking");
-			IPS_SetPosition($varIdMinMaxDistance, $position);
-			IPS_SetVariableCustomProfile($varIdMinMaxDistance, "APRS_Distance.km");
-			IPS_SetVariableCustomAction($varIdMinMaxDistance, $custActionScriptId);
-			SetValueFloat($varIdMinMaxDistance, 400);
-		}
-		$this->SetMyVariable("id_minMax_Distance", $varIdMinMaxDistance);
+			$dummyIdMinMaxSettings = $this->CreateDummyInstance("MinMax Settings", $categoryIdMinMax);
+			IPS_SetPosition($dummyIdMinMaxSettings, $position);
 
-		$position++;
-		$varIdMinMaxEnabled  = $this->RegisterCustVariable("minMaxEnabled", $categoryIdMinMax, "Enable MinMax Tracking", VARIABLETYPE_BOOLEAN, $position, "~Switch", $custActionScriptId);	
-		$this->SetMyVariable("id_minMaxEnabled", $varIdMinMaxEnabled);
+			$position++;
+			$varIdMinMaxEnabled  = $this->RegisterCustVariable("minMaxEnabled", $dummyIdMinMaxSettings, "Enable MinMax Tracking", VARIABLETYPE_BOOLEAN, $position, "~Switch", $custActionScriptId);	
+			$this->SetMyVariable("id_minMaxEnabled", $varIdMinMaxEnabled);
 
-		$varIdMinMaxEnabledTemp = $this->RegisterCustVariable("minMaxEnabledTemp", $categoryIdMinMax, "Enable MinMax Tracking Temp", VARIABLETYPE_BOOLEAN, $position, "~Switch", $custActionScriptId);
-		$this->SetMyVariable("id_minMaxEnabledTemp", $varIdMinMaxEnabledTemp);
-		IPS_SetDisabled($varIdMinMaxEnabledTemp, true);
-		IPS_SetHidden($varIdMinMaxEnabledTemp, true);
+			$position++;
+			$varIdDistance = $this->RegisterCustVariable("minMax_Distance", $dummyIdMinMaxSettings, "Filter Distance to PG1ADW", VARIABLETYPE_FLOAT, $position, "APRS_Distance.km", $custActionScriptId);
+			$this->SetMyVariable("id_minMax_Distance", $varIdDistance);
 
-		$position++;
-		$objIdMinMaxWochenplan = @IPS_GetObjectIDByIdent("MinMaxWochenplan", $categoryIdMinMax);
-		if($objIdMinMaxWochenplan === false) {
-			$objIdMinMaxWochenplan = IPS_CreateEvent(2);
-			IPS_SetIdent($objIdMinMaxWochenplan,"MinMaxWochenplan");
-            IPS_SetParent($objIdMinMaxWochenplan, $categoryIdMinMax);
-            IPS_SetPosition($objIdMinMaxWochenplan, $position);
-			IPS_SetName($objIdMinMaxWochenplan, "MinMax Wochenplan");
+			$position++;
+			$varId = $this->RegisterCustVariable("minMax_Match", $dummyIdMinMaxSettings, "Filter RawData (wildcards '*' | '?')", VARIABLETYPE_STRING, $position, "~TextBox", $custActionScriptId);
+			$this->SetMyVariable("id_minMax_Match", $varId);
+			if(empty(GetValue($varId))) { SetValue($varId, "*"); }
 
-			IPS_SetEventScheduleActionEx($objIdMinMaxWochenplan, 0, "AUS", 0xEDEDED, "{3644F802-C152-464A-868A-242C2A3DEC5C}", ["VALUE" => false]);
-            IPS_SetEventScheduleActionEx($objIdMinMaxWochenplan, 1, "AKTIV", 0x00FF11, "{3644F802-C152-464A-868A-242C2A3DEC5C}", ["VALUE" => true]);
+			$varIdMinMaxEnabledTemp = $this->RegisterCustVariable("minMaxEnabledTemp", $dummyIdMinMaxSettings, "Enable MinMax Tracking Temp", VARIABLETYPE_BOOLEAN, $position, "~Switch", $custActionScriptId);
+			$this->SetMyVariable("id_minMaxEnabledTemp", $varIdMinMaxEnabledTemp);
+			IPS_SetDisabled($varIdMinMaxEnabledTemp, true);
+			IPS_SetHidden($varIdMinMaxEnabledTemp, true);
 
-			IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 0, 1);
-			IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 1, 2);
-			IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 2, 4);
-			IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 3, 8);
-			IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 4, 16);
-			IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 5, 32);
-			IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 6, 64);
-		}
-		//$this->CreateLink(IPS_GetName($varIdMinMaxWochenplan), $varIdMinMaxWochenplan, $position, $categoryIdMinMax);
+			$position++;
+			$objIdMinMaxWochenplan = @IPS_GetObjectIDByIdent("MinMaxWochenplan", $dummyIdMinMaxSettings);
+			if($objIdMinMaxWochenplan === false) {
+				$objIdMinMaxWochenplan = IPS_CreateEvent(2);
+				IPS_SetIdent($objIdMinMaxWochenplan,"MinMaxWochenplan");
+				IPS_SetParent($objIdMinMaxWochenplan, $dummyIdMinMaxSettings);
+				IPS_SetPosition($objIdMinMaxWochenplan, $position);
+				IPS_SetName($objIdMinMaxWochenplan, "MinMax Wochenplan");
 
-		$position++;
-		$scriptId = @IPS_GetObjectIDByIdent("resetMinMaxWochenplan", $objIdMinMaxWochenplan);
-		if($scriptId === false) {		
-			$scriptContentResetWochenplant = sprintf("<?
-			const WOCHENPLAN_ID = %s;
-			IPS_SetEventScheduleGroup (WOCHENPLAN_ID, 0, 0);
-			IPS_SetEventScheduleGroup (WOCHENPLAN_ID, 1, 0);
-			IPS_SetEventScheduleGroup (WOCHENPLAN_ID, 2, 0);
-			IPS_SetEventScheduleGroup (WOCHENPLAN_ID, 3, 0);
-			IPS_SetEventScheduleGroup (WOCHENPLAN_ID, 4, 0);
-			IPS_SetEventScheduleGroup (WOCHENPLAN_ID, 5, 0);
-			IPS_SetEventScheduleGroup (WOCHENPLAN_ID, 6, 0);
-			IPS_SetEventScheduleGroup (WOCHENPLAN_ID, 0, 1);
-			IPS_SetEventScheduleGroup (WOCHENPLAN_ID, 1, 2);
-			IPS_SetEventScheduleGroup (WOCHENPLAN_ID, 2, 4);
-			IPS_SetEventScheduleGroup (WOCHENPLAN_ID, 3, 8);
-			IPS_SetEventScheduleGroup (WOCHENPLAN_ID, 4, 16);
-			IPS_SetEventScheduleGroup (WOCHENPLAN_ID, 5, 32);
-			IPS_SetEventScheduleGroup (WOCHENPLAN_ID, 6, 64);		
-			IPS_SetEventActive(WOCHENPLAN_ID, false); ?>", $objIdMinMaxWochenplan);
-			$scriptId = $this->RegisterScript("resetMinMaxWochenplan", "Reset MinMax Wochenplan", $scriptContentResetWochenplant, $position);
-			IPS_SetParent($scriptId, $objIdMinMaxWochenplan);
-			IPS_SetHidden($scriptId, false);
-			IPS_SetDisabled($scriptId, false);
-		}
+				IPS_SetEventScheduleActionEx($objIdMinMaxWochenplan, 0, "AUS", 0xEDEDED, "{3644F802-C152-464A-868A-242C2A3DEC5C}", ["VALUE" => false]);
+				IPS_SetEventScheduleActionEx($objIdMinMaxWochenplan, 1, "AKTIV", 0x00FF11, "{3644F802-C152-464A-868A-242C2A3DEC5C}", ["VALUE" => true]);
 
-		$position++;
-		$varId = $this->RegisterCustVariable("minMaxStart", $categoryIdMinMax, "MinMax Start Zeitpunkt", VARIABLETYPE_INTEGER, $position, "~UnixTimestamp", "");	
-		$this->SetMyVariable("id_minMaxStart", $varId);
-		IPS_SetDisabled($varId, true);
+				IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 0, 1);
+				IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 1, 2);
+				IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 2, 4);
+				IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 3, 8);
+				IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 4, 16);
+				IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 5, 32);
+				IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 6, 64);
+			}
+			$this->SetMyVariable("id_MinMaxWochenplan", $objIdMinMaxWochenplan);
 
-		$position++;
-		$varId = $this->RegisterCustVariable("minMaxStop", $categoryIdMinMax, "MinMax Stop Zeitpunkt", VARIABLETYPE_INTEGER, $position, "~UnixTimestamp", "");	
-		$this->SetMyVariable("id_minMaxStop", $varId);
-		IPS_SetDisabled($varId, true);
+			$position++;
+			$scriptId = @IPS_GetObjectIDByIdent("resetMinMaxWochenplan", $objIdMinMaxWochenplan);
+			if($scriptId === false) {		
+				$scriptContentResetWochenplant = sprintf("<? APRS_ResetMinMaxWochenplan(%s, 'Script'); ?>", $this->InstanceID);
+				$scriptId = $this->RegisterScript("resetMinMaxWochenplan", "Reset MinMax Wochenplan", $scriptContentResetWochenplant, $position);
+				IPS_SetParent($scriptId, $objIdMinMaxWochenplan);
+				IPS_SetHidden($scriptId, false);
+				IPS_SetDisabled($scriptId, false);
+			}
 
-		$position++;
-		$this->CreateDummyInstance("MinMax", $categoryIdMinMax, $position);
+			$position++;
+			$varId = $this->RegisterCustVariable("minMaxStart", $categoryIdMinMax, "MinMax Start Zeitpunkt", VARIABLETYPE_INTEGER, $position, "~UnixTimestamp", "");	
+			$this->SetMyVariable("id_minMaxStart", $varId);
+			IPS_SetDisabled($varId, true);
 
-		$position++;
-		$scriptId = @IPS_GetObjectIDByIdent("resetMinMaxVariables", $categoryIdMinMax);
-		if($scriptId === false) {
-			$scriptContent = sprintf("<? APRS_ResetMinMaxVariables(%s, 'Script'); ?>", $this->InstanceID);
-			$scriptId = $this->RegisterScript("resetMinMaxVariables", "Reset MinMax Variables", $scriptContent, $position);
-			IPS_SetParent($scriptId, $categoryIdMinMax);
-			IPS_SetHidden($scriptId, false);
-			IPS_SetDisabled($scriptId, false);
+			$position++;
+			$varId = $this->RegisterCustVariable("minMaxStop", $categoryIdMinMax, "MinMax Stop Zeitpunkt", VARIABLETYPE_INTEGER, $position, "~UnixTimestamp", "");	
+			$this->SetMyVariable("id_minMaxStop", $varId);
+			IPS_SetDisabled($varId, true);
+
+			$position++;
+			$varId = $this->RegisterCustVariable("minMaxCnt", $categoryIdMinMax, "Update Cnt", VARIABLETYPE_INTEGER, $position, "", "");
+			$this->SetMyVariable("id_minMaxCnt", $varId);
+			IPS_SetDisabled($varId, true);	
+
+			$position++;
+			$scriptId = @IPS_GetObjectIDByIdent("resetMinMaxVariables", $categoryIdMinMax);
+			if($scriptId === false) {
+				$scriptContent = sprintf("<? APRS_ResetMinMaxVariables(%s, 'Script'); ?>", $this->InstanceID);
+				$scriptId = $this->RegisterScript("resetMinMaxVariables", "Reset MinMax Variables", $scriptContent, $position);
+				IPS_SetParent($scriptId, $categoryIdMinMax);
+				IPS_SetHidden($scriptId, false);
+				IPS_SetDisabled($scriptId, false);
+			}
+			$this->SetMyVariable("id_resetMinMaxVariables", $scriptId);
+
+			$position++;
+			$varId = $this->CreateDummyInstance("MinMax Data", $categoryIdMinMax, $position);
+			$this->SetMyVariable("id_minMaxData", $varId);
+
 		}
 
 		// ------------------------------------------------------------------------------------------------------------------------------------------
@@ -466,44 +511,57 @@ trait COMMON {
 
      protected function GetMinMaxVarId(string $identName, string $varName) {
 
-		$categoryIdMinMax = GetValueInteger($this->GetIDForIdent("categoryIdMinMax"));
-		$dummyIdMinMax = $this->CreateDummyInstance("MinMax", $categoryIdMinMax);
-	
-		$varId = @IPS_GetObjectIDByIdent($identName, $dummyIdMinMax);
-		if ($varId === false) {
-			$varId = IPS_CreateVariable(2);     //0 - Boolean | 1-Integer | 2 - Float | 3 - String
-			IPS_SetIdent($varId, $identName);
-			IPS_SetParent($varId, $dummyIdMinMax);
-			IPS_SetPosition($varId, 500);
-			IPS_SetName($varId, $varName);
-			
-			if(strpos($identName, "altitude") !== false) {
-				IPS_SetVariableCustomProfile($varId, "APRS_Distance.Meter");
-			} else if(strpos($identName, "overGround") !== false) {
-				IPS_SetVariableCustomProfile($varId, "APRS_Distance.Meter");
-			} else if(strpos($identName, "distance") !== false) {
-				IPS_SetVariableCustomProfile($varId, "APRS_Distance.km");
-			} else if(strpos($identName, "speed") !== false) {
-				IPS_SetVariableCustomProfile($varId, "~WindSpeed.kmh");
-			} else if(strpos($identName, "clb") !== false) {
-				IPS_SetVariableCustomProfile($varId, "~WindSpeed.ms");
-			} else if(strpos($identName, "pressure") !== false) {
-				IPS_SetVariableCustomProfile($varId, "~AirPressure.F");
-			} else if(strpos($identName, "temp") !== false) {
-				IPS_SetVariableCustomProfile($varId, "APRS_Temp");
-			} else if(strpos($identName, "humidity") !== false) {
-				IPS_SetVariableCustomProfile($varId, "~Humidity.F");
-			} else if(strpos($identName, "o3") !== false) {
-				//IPS_SetVariableCustomProfile($varId, "");											
-				IPS_LogMessage("APRS_Modul", "no Profile for '".$identName."'");
-			} else {
-				IPS_LogMessage("APRS_Modul", "no Profile for '".$identName."'");
-				//IPS_SetVariableCustomProfile($varId, "");
+		//$categoryIdMinMax = GetValueInteger($this->GetIDForIdent("categoryIdMinMax"));
+		//$dummyIdMinMax = $this->CreateDummyInstance("MinMax", $categoryIdMinMax);
+		
+		$varId = false;
+		$minMaxData =  $this->GetMyVariable("id_minMaxData");
+		if(!IPS_InstanceExists($minMaxData)) {
+			$varIdMinMaxEnabled = $this->GetMyVariable("id_minMaxEnabled");
+			SetValueBoolean($varIdMinMaxEnabled, false);
+			$varIdMinMaxMatch = $this->GetMyVariable("id_minMax_Match");
+			SetValue($varIdMinMaxMatch, sprintf("PROBLEM 'MinMax Dummy Instance '%s' not found @%s" , $minMaxData, date('Y-m-d H:i:s', time())));
+			return false;
+		} else {
+
+			//$this->AddLog(__FUNCTION__, sprintf("id_minMaxData: %s", $minMaxData));
+			$varId = @IPS_GetObjectIDByIdent($identName, $minMaxData);
+			if ($varId === false) {
+				$varId = IPS_CreateVariable(2);     //0 - Boolean | 1-Integer | 2 - Float | 3 - String
+				IPS_SetParent($varId, $minMaxData);
+				IPS_SetIdent($varId, $identName);
+				IPS_SetPosition($varId, 650);
+				IPS_SetName($varId, $varName);
+				
+				if(strpos($identName, "altitude") !== false) {
+					IPS_SetVariableCustomProfile($varId, "APRS_Distance.Meter");
+				} else if(strpos($identName, "overGround") !== false) {
+					IPS_SetVariableCustomProfile($varId, "APRS_Distance.Meter");
+				} else if(strpos($identName, "distance") !== false) {
+					IPS_SetVariableCustomProfile($varId, "APRS_Distance.km");
+				} else if(strpos($identName, "speed") !== false) {
+					IPS_SetVariableCustomProfile($varId, "~WindSpeed.kmh");
+				} else if(strpos($identName, "clb") !== false) {
+					IPS_SetVariableCustomProfile($varId, "~WindSpeed.ms");
+				} else if(strpos($identName, "pressure") !== false) {
+					IPS_SetVariableCustomProfile($varId, "~AirPressure.F");
+				} else if(strpos($identName, "temp") !== false) {
+					IPS_SetVariableCustomProfile($varId, "APRS_Temp");
+				} else if(strpos($identName, "humidity") !== false) {
+					IPS_SetVariableCustomProfile($varId, "~Humidity.F");
+				} else if(strpos($identName, "o3") !== false) {
+					//IPS_SetVariableCustomProfile($varId, "");											
+					//IPS_LogMessage("APRS_Modul MinMax", "no Profile for '".$identName."'");
+				} else {
+					IPS_LogMessage("APRS_Modul MinMax", "no Profile for '".$identName."'");
+					//IPS_SetVariableCustomProfile($varId, "");
+				}
+				IPS_SetInfo($varId, $varName);
+				IPS_SetDisabled($varId, true);
 			}
 
-			IPS_SetInfo($varId, $varName);
-			IPS_SetDisabled($varId, false);
 		}
+
 		return $varId;
 	}
 

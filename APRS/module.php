@@ -16,7 +16,7 @@ class APRS extends IPSModule {
 	private $logLevel = 3;
 	private $logCnt = 0;
 	private $enableIPSLogOutput = false;
-
+	
 	public function __construct($InstanceID) {
 
 		parent::__construct($InstanceID);		// Diese Zeile nicht löschen
@@ -225,10 +225,7 @@ class APRS extends IPSModule {
 
 
 	public function ResetCounterVariables(string $source) {
-		if ($this->logLevel >= LogLevel::INFO) {
-			$this->AddLog(__FUNCTION__, 'RESET Counter Variables', 0);
-		}
-
+		if ($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, 'RESET CounterVariables'); }
 		SetValue($this->GetIDForIdent("dbInsertId"), 0);
 		SetValue($this->GetIDForIdent("dbInsertDuration"), 0);
 		SetValue($this->GetIDForIdent("receiveCnt"), 0);
@@ -239,16 +236,33 @@ class APRS extends IPSModule {
 		SetValue($this->GetIDForIdent("lastDataReceived"), 0);
 	}
 
+	public function ResetDataViewerVariables(string $source) {
+		if ($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, 'RESET DataViewerVariables'); }
+		//SetValue($this->GetMyVariable("id_dataViewerEnabled"), false);
+		//SetValue($this->GetMyVariable("id_dataViewer_Distance"), 0);
+		//SetValue($this->GetMyVariable("id_dataViewer_Match"), "*");
+		//SetValue($this->GetMyVariable("id_dataViewer_StopOnNextMatch"), false);
+		IPS_SetName($this->GetMyVariable("id_dataViewer"), "Data Viewer");
+		SetValue($this->GetMyVariable("id_dataViewerCnt"), 0);
+		SetValue($this->GetMyVariable("id_dataViewer"), "");
+	}
 
 	public function ResetNotifyVariables(string $source) {
-		SetValue($this->GetMyVariable("id_notifySondenTyp"), "");
+		if ($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, 'RESET NotifyVariables'); }
+		SetValue($this->GetMyVariable("id_notifyEnabled"), false);
+		SetValue($this->GetMyVariable("id_notifyDistance"), 400);
+		SetValue($this->GetMyVariable("id_notifyOzon"), false);
+		SetValue($this->GetMyVariable("id_notifySondenTyp"), "disabled");
+		SetValue($this->GetMyVariable("id_notifyMatch"), "disabled");
 		SetValue($this->GetMyVariable("id_notifyMessage"), "-");
+		SetValue($this->GetMyVariable("id_notifyCnt"), 0);
 		SetValue($this->GetMyVariable("id_notifyJsonStore"), "");
 		SetValue($this->GetMyVariable("id_notifyJsonStoreCnt"), 0);
 	}
 
 
 	public function ResetPG1ADWNotifyVariables(string $source) {
+		if ($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, 'RESET PG1ADWNotifyVariables'); }
 		SetValue($this->GetMyVariable("id_notifyPG1ADW_Distance"), 20);
 		SetValue($this->GetMyVariable("id_notifyPG1ADW_Altitude"), 4000);
 		SetValue($this->GetMyVariable("id_notifyPG1ADW_Message"), "-");
@@ -258,17 +272,46 @@ class APRS extends IPSModule {
 	}
 
 	public function ResetMinMaxVariables(string $source) {
-			$categoryIdMinMax = GetValueInteger($this->GetIDForIdent("categoryIdMinMax"));
-		$dummyIdMinMax = $this->CreateDummyInstance("MinMax", $categoryIdMinMax);
-		if($dummyIdMinMax != false) {
-			$childIDs = IPS_GetChildrenIDs($dummyIdMinMax);
-			foreach($childIDs as $childId) {
-				$objTyp = IPS_GetObject($childId)["ObjectType"];
-				if($objTyp == 2) {
-					SetValue($childId, 0);
-				}
+
+		$minMaxData =  $this->GetMyVariable("id_minMaxData");
+		if ($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf('RESET MinMaxVariables {DummyId: %s}', $minMaxData)); }
+		SetValue($this->GetMyVariable("id_minMaxEnabled"), false);
+		//SetValue($this->GetMyVariable("id_minMax_Distance"), 0);
+		//SetValue($this->GetMyVariable("id_minMax_Match"), "*");
+		//SetValue($this->GetMyVariable("id_minMaxEnabledTemp"), false);
+		SetValue($this->GetMyVariable("id_minMaxStart"), 0);
+		SetValue($this->GetMyVariable("id_minMaxStop"), 0);
+		SetValue($this->GetMyVariable("id_minMaxCnt"), 0);
+
+		
+		$childIDs = IPS_GetChildrenIDs($minMaxData);
+		foreach($childIDs as $childId) {
+			$objTyp = IPS_GetObject($childId)["ObjectType"];
+			if($objTyp == 2) {
+				SetValue($childId, 0);
 			}
 		}
+
+	}
+
+	public function ResetMinMaxWochenplan(string $source) {
+		if ($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, 'RESET MinMaxWochenplan'); }
+		$objIdMinMaxWochenplan = $this->GetMyVariable("id_MinMaxWochenplan");
+		IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 0, 0);
+		IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 1, 0);
+		IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 2, 0);
+		IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 3, 0);
+		IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 4, 0);
+		IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 5, 0);
+		IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 6, 0);
+		IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 0, 1);
+		IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 1, 2);
+		IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 2, 4);
+		IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 3, 8);
+		IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 4, 16);
+		IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 5, 32);
+		IPS_SetEventScheduleGroup ($objIdMinMaxWochenplan, 6, 64);		
+		IPS_SetEventActive($objIdMinMaxWochenplan, false);
 	}
 
 	public function DeleteLoggedData(string $Text) {
