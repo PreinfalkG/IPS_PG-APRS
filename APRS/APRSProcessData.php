@@ -51,8 +51,7 @@ trait APRSProcessData {
                                 SetValue($varIdDataViewer, print_r($dataArr, true));
 
                                 $id_dataViewerCnt = $this->GetMyVariable("id_dataViewerCnt");
-                                $dataViewerCnt = GetValue($id_dataViewerCnt); 
-                                SetValue($id_dataViewerCnt, $dataViewerCnt + 1); 
+                                SetValue($id_dataViewerCnt, GetValue($id_dataViewerCnt) + 1); 
 
                                 $dataViewer_StopOnNextMatch = GetValue($this->GetMyVariable("id_dataViewer_StopOnNextMatch"));   
                                 if($dataViewer_StopOnNextMatch) {
@@ -67,8 +66,13 @@ trait APRSProcessData {
                                 if ($enableLogFile_DataViewer) {
                                     $this->WriteRawDataToLogFile(sprintf("%s :: %s", $filterTxt, $rawData));
                                 }
+                            } else {
+                                $id_dataViewerCntNoMatch = $this->GetMyVariable("id_dataViewerCntMoMatch");
+                                SetValue($id_dataViewerCntNoMatch, GetValue($id_dataViewerCntNoMatch) + 1); 
                             }
+
                         } else {
+
                             $dataViewer_StopOnNextMatch = GetValue($this->GetMyVariable("id_dataViewer_StopOnNextMatch"));   
                             if(!$dataViewer_StopOnNextMatch) {
                    

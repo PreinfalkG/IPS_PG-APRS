@@ -246,6 +246,7 @@ class APRS extends IPSModule {
 		SetValue($this->GetMyVariable("id_dataViewer_StopOnNextMatch"), false);
 		IPS_SetName($this->GetMyVariable("id_dataViewer"), "Data Viewer");
 		SetValue($this->GetMyVariable("id_dataViewerCnt"), 0);
+		SetValue($this->GetMyVariable("id_dataViewerCntMoMatch"), 0);
 		SetValue($this->GetMyVariable("id_dataViewer"), "");
 	}
 
@@ -254,7 +255,7 @@ class APRS extends IPSModule {
 		SetValue($this->GetMyVariable("id_notifyEnabled"), false);
 		SetValue($this->GetMyVariable("id_notifyDistance"), 400);
 		SetValue($this->GetMyVariable("id_notifyOzon"), false);
-		SetValue($this->GetMyVariable("id_notifySondenTyp"), "disabled");
+		SetValue($this->GetMyVariable("id_notifySondenTyp"), "");
 		SetValue($this->GetMyVariable("id_notifyMatch1"), "");
 		SetValue($this->GetMyVariable("id_notifyMatch2"), "");
 		SetValue($this->GetMyVariable("id_notifyMatch3"), "");

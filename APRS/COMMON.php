@@ -216,6 +216,12 @@ trait COMMON {
 			IPS_SetDisabled($varId, true);	
 
 			$position++;
+			$varId = $this->RegisterCustVariable("dataViewerCntMoMatch", $categoryIdDataViewer, "No Match Cnt", VARIABLETYPE_INTEGER, $position, "", "");
+			$this->SetMyVariable("id_dataViewerCntMoMatch", $varId);
+			IPS_SetDisabled($varId, true);	
+
+
+			$position++;
 			$scriptId = @IPS_GetObjectIDByIdent("resetDataViewerVariables", $categoryIdDataViewer);
 			if($scriptId === false) {
 				$scriptContent = sprintf("<? APRS_ResetDataViewerVariables(%s, 'Script'); ?>", $this->InstanceID);
