@@ -27,10 +27,9 @@ if(empty($telegramMessage)){
 	$telegramMessage = "empty Message ";
 }
 
-
 //ADW20_Radiosonde		'Telegram' => -459309428, 
 //ADW20_TTN 			'Telegram' => -597879976,
-//ADW20_TEST			'Telegram' => -503787937,
+//ADW20_TEST			'Telegram' => -4039965244,
 
 function SendMessage($msg, $chat_id, $token) {
 

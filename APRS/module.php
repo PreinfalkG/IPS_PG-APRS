@@ -54,7 +54,7 @@ class APRS extends IPSModule {
 		$this->RegisterPropertyString("aprsNetbeacon", "PG1ADW-4>APNL51,TCPIP*,qAI,PG1ADW-2:!4819.54N/01425.57E`iGate PG1ADW RX@MacMini");
 
 		$this->RegisterPropertyString("telegramBotToken", "");
-		$this->RegisterPropertyString("telegramChatId", "-503787937");
+		$this->RegisterPropertyString("telegramChatId", "-4039965244");
 		
 
 		$this->RegisterTimer('Timer_AutoUpdate_APRS', 0, 'APRS_Timer_AutoUpdate_APRS($_IPS[\'TARGET\']);');
@@ -238,10 +238,12 @@ class APRS extends IPSModule {
 
 	public function ResetDataViewerVariables(string $source) {
 		if ($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, 'RESET DataViewerVariables'); }
-		//SetValue($this->GetMyVariable("id_dataViewerEnabled"), false);
-		//SetValue($this->GetMyVariable("id_dataViewer_Distance"), 0);
-		//SetValue($this->GetMyVariable("id_dataViewer_Match"), "*");
-		//SetValue($this->GetMyVariable("id_dataViewer_StopOnNextMatch"), false);
+		SetValue($this->GetMyVariable("id_dataViewerEnabled"), false);
+		SetValue($this->GetMyVariable("id_dataViewer_Distance"), 0);
+		SetValue($this->GetMyVariable("id_dataViewer_Match1"), "");
+		SetValue($this->GetMyVariable("id_dataViewer_Match2"), "");
+		SetValue($this->GetMyVariable("id_dataViewer_Match3"), "");
+		SetValue($this->GetMyVariable("id_dataViewer_StopOnNextMatch"), false);
 		IPS_SetName($this->GetMyVariable("id_dataViewer"), "Data Viewer");
 		SetValue($this->GetMyVariable("id_dataViewerCnt"), 0);
 		SetValue($this->GetMyVariable("id_dataViewer"), "");
@@ -253,7 +255,9 @@ class APRS extends IPSModule {
 		SetValue($this->GetMyVariable("id_notifyDistance"), 400);
 		SetValue($this->GetMyVariable("id_notifyOzon"), false);
 		SetValue($this->GetMyVariable("id_notifySondenTyp"), "disabled");
-		SetValue($this->GetMyVariable("id_notifyMatch"), "disabled");
+		SetValue($this->GetMyVariable("id_notifyMatch1"), "");
+		SetValue($this->GetMyVariable("id_notifyMatch2"), "");
+		SetValue($this->GetMyVariable("id_notifyMatch3"), "");
 		SetValue($this->GetMyVariable("id_notifyMessage"), "-");
 		SetValue($this->GetMyVariable("id_notifyCnt"), 0);
 		SetValue($this->GetMyVariable("id_notifyJsonStore"), "");
@@ -264,7 +268,7 @@ class APRS extends IPSModule {
 	public function ResetPG1ADWNotifyVariables(string $source) {
 		if ($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, 'RESET PG1ADWNotifyVariables'); }
 		SetValue($this->GetMyVariable("id_notifyPG1ADW_Distance"), 20);
-		SetValue($this->GetMyVariable("id_notifyPG1ADW_Altitude"), 4000);
+		SetValue($this->GetMyVariable("id_notifyPG1ADW_Altitude"), 400);
 		SetValue($this->GetMyVariable("id_notifyPG1ADW_Message"), "-");
 		SetValue($this->GetMyVariable("id_notifyPG1ADW_JsonStore"), "");
 		SetValue($this->GetMyVariable("id_notifyPG1ADW_JsonStoreCnt"), 0);
@@ -276,9 +280,11 @@ class APRS extends IPSModule {
 		$minMaxData =  $this->GetMyVariable("id_minMaxData");
 		if ($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf('RESET MinMaxVariables {DummyId: %s}', $minMaxData)); }
 		SetValue($this->GetMyVariable("id_minMaxEnabled"), false);
-		//SetValue($this->GetMyVariable("id_minMax_Distance"), 0);
-		//SetValue($this->GetMyVariable("id_minMax_Match"), "*");
-		//SetValue($this->GetMyVariable("id_minMaxEnabledTemp"), false);
+		SetValue($this->GetMyVariable("id_minMax_Distance"), 0);
+		SetValue($this->GetMyVariable("id_minMax_Match1"), "");
+		SetValue($this->GetMyVariable("id_minMax_Match2"), "");
+		SetValue($this->GetMyVariable("id_minMax_Match3"), "");
+		SetValue($this->GetMyVariable("id_minMaxEnabledTemp"), false);
 		SetValue($this->GetMyVariable("id_minMaxStart"), 0);
 		SetValue($this->GetMyVariable("id_minMaxStop"), 0);
 		SetValue($this->GetMyVariable("id_minMaxCnt"), 0);
@@ -398,7 +404,7 @@ class APRS extends IPSModule {
 		$result = true;
 		$filePath = IPS_GetLogDir() . "APRS/";
 		$filePath .= date('Y-m-d', time()) . "/";
-		$fileName = $filePath . date('Y-m-d_H', time()) . ".log";
+		$fileName = $filePath . $this->InstanceID . "_" .  date('Y-m-d_H', time()) . ".log";
 		$now = DateTime::createFromFormat('U.u', microtime(true));
 		$data = sprintf("%s :: %s\n", $now->format("Y-d-m H:i:s.u"), $data);
 

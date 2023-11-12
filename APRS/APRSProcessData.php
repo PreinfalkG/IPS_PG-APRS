@@ -45,8 +45,7 @@ trait APRSProcessData {
                         $dataViewerEnabled = GetValueBoolean($this->GetMyVariable("id_dataViewerEnabled"));
                         $varIdDataViewer = $this->GetMyVariable("id_dataViewer");				
                         if ($dataViewerEnabled) {
-
-                            $filterResult = $this->FilterAPRSData("Data Viewer", "id_dataViewer_Distance", "id_dataViewer_Match", $distPG1ADW, $rawData);
+                            $filterResult = $this->FilterAPRSData("Data Viewer", $rawData, $distPG1ADW, "id_dataViewer_Distance", "id_dataViewer_Match1", "id_dataViewer_Match2", "id_dataViewer_Match3");
                             $filterTxt = $filterResult["FilterText"];
                             if($filterResult["FilterPassed"]) {
                                 SetValue($varIdDataViewer, print_r($dataArr, true));
@@ -63,10 +62,13 @@ trait APRSProcessData {
                                     $filterTxt .= " @" . date('d.m.Y H:i:s',time()); 
                                 }
                                 IPS_SetName($varIdDataViewer, $filterTxt); 
+
+                                $enableLogFile_DataViewer = GetValue($this->GetIDForIdent("enableLogFile_DataViewer"));
+                                if ($enableLogFile_DataViewer) {
+                                    $this->WriteRawDataToLogFile(sprintf("%s :: %s", $filterTxt, $rawData));
+                                }
                             }
-
                         } else {
-
                             $dataViewer_StopOnNextMatch = GetValue($this->GetMyVariable("id_dataViewer_StopOnNextMatch"));   
                             if(!$dataViewer_StopOnNextMatch) {
                    
@@ -78,7 +80,6 @@ trait APRSProcessData {
                                 } else {
                                     IPS_SetName($varIdDataViewer, sprintf("Data Viewer [%d]", 600 - $lastUpdateSec));
                                 }
-
                             } 
                         }
                     }
@@ -119,8 +120,7 @@ trait APRSProcessData {
                         }
 
                         if($minMaxEnabled) {
-                      
-                            $filterResult = $this->FilterAPRSData("MinMax Data", "id_minMax_Distance", "id_minMax_Match", $distPG1ADW, $rawData);
+                            $filterResult = $this->FilterAPRSData("MinMax Data", $rawData, $distPG1ADW, "id_minMax_Distance", "id_minMax_Match1", "id_minMax_Match2", "id_minMax_Match3");
                             if($filterResult["FilterPassed"]) {
 
                                 $minMaxData =  $this->GetMyVariable("id_minMaxData");
@@ -188,7 +188,7 @@ trait APRSProcessData {
                         $notifyEnabled = GetValue($this->GetMyVariable("id_notifyEnabled"));
                         if ($notifyEnabled) {
 
-                             $doNotifyFor = [];
+                            $doNotifyFor = [];
        
                             $notifyDistance = GetValue($this->GetMyVariable("id_notifyDistance"));
                             if(($notifyDistance == 0) or (is_null($distPG1ADW)) or ($distPG1ADW < $notifyDistance)) { 
@@ -203,7 +203,7 @@ trait APRSProcessData {
 
                                 $notifySondenTyp =  GetValue($this->GetMyVariable("id_notifySondenTyp"));
                                 if(empty($notifySondenTyp) or ($notifySondenTyp == "disabled")) {
-                                    // no match filter > do nothing
+                                    if($this->logLevel >= LogLevel::TEST) { $this->AddLog(__FUNCTION__, "Notify Filter 'SondenTyp' disabled"); }
                                 } else {
                                     $typeValue = $dataArr["Type"];
                                     if(!empty($typeValue)) {
@@ -216,25 +216,42 @@ trait APRSProcessData {
                                     }
                                 }
 
-                                $notifyMatch =  GetValue($this->GetMyVariable("id_notifyMatch"));
+                                $notifyMatch =  GetValue($this->GetMyVariable("id_notifyMatch1"));
                                 if(empty($notifyMatch) or ($notifyMatch == "disabled")) {
-                                    // no match filter > do nothing
+                                    if($this->logLevel >= LogLevel::TEST) { $this->AddLog(__FUNCTION__, "Notify Filter 1 disabled"); }
+                                } else if ($notifyMatch == "*") {
+                                    SetValue($this->GetMyVariable("id_notifyMatch1"), "");                                    
                                 } else {
                                     if(fnmatch($notifyMatch, $rawData, FNM_NOESCAPE)) {
-                                        $doNotifyFor[] = $notifyMatch;
+                                        $doNotifyFor[] = "Filter1_" . $notifyMatch;
                                     }                                    
                                 }
             
+                                $notifyMatch =  GetValue($this->GetMyVariable("id_notifyMatch2"));
+                                if(empty($notifyMatch) or ($notifyMatch == "disabled")) {
+                                    if($this->logLevel >= LogLevel::TEST) { $this->AddLog(__FUNCTION__, "Notify Filter 2 disabled"); }
+                                } else if ($notifyMatch == "*") {
+                                    SetValue($this->GetMyVariable("id_notifyMatch2"), "");
+                                } else {
+                                    if(fnmatch($notifyMatch, $rawData, FNM_NOESCAPE)) {
+                                        $doNotifyFor[] = "Filter2_" . $notifyMatch;
+                                    }                                    
+                                }
+                                
+                                $notifyMatch =  GetValue($this->GetMyVariable("id_notifyMatch3"));
+                                if(empty($notifyMatch) or ($notifyMatch == "disabled")) {
+                                    if($this->logLevel >= LogLevel::TEST) { $this->AddLog(__FUNCTION__, "Notify Filter 3 disabled"); }
+                                } else if ($notifyMatch == "*") {
+                                    SetValue($this->GetMyVariable("id_notifyMatch3"), "");                                    
+                                } else {
+                                    if(fnmatch($notifyMatch, $rawData, FNM_NOESCAPE)) {
+                                        $doNotifyFor[] = "Filter3_" . $notifyMatch;
+                                    }                                    
+                                }                                
+
                             } else {
-                                if($this->logLevel >= LogLevel::TRACE) { $this->AddLog(__FUNCTION__, "Notify Distance Filter not match"); }
+                                if($this->logLevel >= LogLevel::TEST) { $this->AddLog(__FUNCTION__, "Notify Distance Filter not match"); }
                             }
-
-
-                           
-                           //$doNotifyForCnt =  count($doNotifyFor);
-                           //if( $doNotifyForCnt > 0) {
-                           //     IPS_LogMessage(__FUNCTION__, print_r($doNotifyFor, true));
-                           //}
 
                             foreach($doNotifyFor as $notifyFor) {
 
@@ -379,7 +396,7 @@ trait APRSProcessData {
 		return $returnVal;
 	}
 
-    protected function FilterAPRSData($filterName, $id_filterDistance, $id_filterMatch, $distPG1ADW, $rawData) {
+    protected function FilterAPRSData($filterName, $rawData,  $distPG1ADW, $id_filterDistance, $id_filter1Match="", $id_filter2Match="", $id_filter3Match="") {
 
         $filterPassed = false; 
         $filterTxt = $filterName . " { ";
@@ -403,18 +420,88 @@ trait APRSProcessData {
         }
 
         if($filterPassed) {
-            $filterMatch = GetValue($this->GetMyVariable($id_filterMatch));                              
-            if(empty($filterMatch) or ($filterMatch == "*")) {
-                $filterPassed = true;
-                $filterTxt .= " | match Filter disabled }";
-            } else {
-                if(fnmatch($filterMatch, $rawData, FNM_NOESCAPE)) {
-                    $filterPassed = true;
-                    $filterTxt .= sprintf(" | Filter '%s' matched}", $filterMatch);
+
+            $matchFilter1Passed = false;
+            $matchFilter2Passed = false;
+            $matchFilter3Passed = false;
+
+            $matchFilter1Disabled = false;
+            $matchFilter2Disabled = false;
+            $matchFilter3Disabled = false;
+
+            $matchFilter1Text = "";
+            $matchFilter2Text = "";
+            $matchFilter3Text = "";
+
+            //match filter 1
+            if(!empty($id_filter1Match)) {
+                $filter1Match = GetValue($this->GetMyVariable($id_filter1Match));     
+                if((!empty($filter1Match)) and ($filter1Match != "disabled")) {
+                    if(($filter1Match == "*") or (fnmatch($filter1Match, $rawData, FNM_NOESCAPE))) {
+                        $matchFilter1Disabled = false;
+                        $matchFilter1Passed = true;
+                        $matchFilter1Text = sprintf("Filter1 '%s' matched", $filter1Match);
+                    } else {
+                        $matchFilter1Disabled = false;
+                        $matchFilter1Passed = false;
+                        $matchFilter1Text = "Filter1 Not matched";
+                    }
                 } else {
-                    $filterPassed = false;
+                    $matchFilter1Disabled = true;
+                    $matchFilter1Text = "Filter1 disabled";
+                }
+            } 
+
+            
+               //match filter 2
+            if(!empty($id_filter2Match)) {
+                $filter2Match = GetValue($this->GetMyVariable($id_filter2Match));     
+                if((!empty($filter2Match)) and ($filter2Match != "disabled")) {
+                    if(($filter2Match == "*") or (fnmatch($filter2Match, $rawData, FNM_NOESCAPE))) {
+                        $matchFilter2Disabled = false;
+                        $matchFilter2Passed = true;
+                        $matchFilter2Text = sprintf("Filter2 '%s' matched}", $filter2Match);
+                    } else {
+                        $matchFilter2Disabled = false;
+                        $matchFilter2Passed = false;
+                        $matchFilter2Text = "Filter2 Not matched";
+                    }
+                } else {
+                    $matchFilter2Disabled = true;
+                    $matchFilter2Text = "Filter2 disabled";
                 }
             }
+
+
+            //match filter 3
+            if(!empty($id_filter3Match)) {
+                $filter3Match = GetValue($this->GetMyVariable($id_filter3Match));     
+                if((!empty($filter3Match)) and ($filter3Match != "disabled")) {
+                    if(($filter3Match == "*") or (fnmatch($filter3Match, $rawData, FNM_NOESCAPE))) {
+                        $matchFilter3Disabled = false;
+                        $matchFilter3Passed = true;
+                        $matchFilter3Text = sprintf("Filter3 '%s' matched}", $filter3Match);
+                    } else {
+                        $matchFilter3Disabled = false;
+                        $matchFilter3Passed = false;
+                        $matchFilter3Text = "Filter3 Not matched";
+                    }
+                } else {
+                    $matchFilter3Disabled = true;
+                    $matchFilter3Text = "Filter3 disabled";
+                }
+            }
+         
+
+            if(($matchFilter1Passed or $matchFilter2Passed or $matchFilter3Passed) or ($matchFilter1Disabled and $matchFilter2Disabled and $matchFilter3Disabled)) {
+                $filterPassed = true;
+                $filterTxt .= sprintf(" | %s | %s | %s", $matchFilter1Text, $matchFilter2Text, $matchFilter3Text );
+
+            } else {
+                $filterPassed = false; 
+                //IPS_SetName(54080, sprintf("____ | %s | %s | %s", $matchFilter1Text, $matchFilter2Text, $matchFilter3Text ));
+            }
+
         } else {
             $filterTxt .= " }";
         }

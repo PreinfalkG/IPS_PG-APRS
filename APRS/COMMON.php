@@ -171,6 +171,9 @@ trait COMMON {
 		$varId = $this->RegisterVariableBoolean("enableLogFile_5", "Log#5 - Write Part 2 as Array", "~Switch", $position++);
 		IPS_SetVariableCustomAction($varId, $custActionScriptId);	
 
+		$varId = $this->RegisterVariableBoolean("enableLogFile_DataViewer", "Log#6 - DataViewer", "~Switch", $position++);
+		IPS_SetVariableCustomAction($varId, $custActionScriptId);	
+
 
 		// ------------------------------------------------------------------------------------------------------------------------------------------
 		// Data Viewer
@@ -189,9 +192,19 @@ trait COMMON {
 			//SetValue($varIdDistance, 4000);
 
 			$position++;
-			$varId = $this->RegisterCustVariable("dataViewer_Match", $dummyIdDataViewerSettings, "Filter RawData (wildcards '*' | '?')", VARIABLETYPE_STRING, $position, "~TextBox", $custActionScriptId);
-			$this->SetMyVariable("id_dataViewer_Match", $varId);
-			if(empty(GetValue($varId))) { SetValue($varId, "*"); }
+			$varId = $this->RegisterCustVariable("dataViewer_Match1", $dummyIdDataViewerSettings, "Filter RawData 1 (wildcards '*' | '?')", VARIABLETYPE_STRING, $position, "", $custActionScriptId);
+			$this->SetMyVariable("id_dataViewer_Match1", $varId);
+			if(empty(GetValue($varId))) { SetValue($varId, ""); }
+
+			$position++;
+			$varId = $this->RegisterCustVariable("dataViewer_Match2", $dummyIdDataViewerSettings, "Filter RawData 2 (wildcards '*' | '?')", VARIABLETYPE_STRING, $position, "", $custActionScriptId);
+			$this->SetMyVariable("id_dataViewer_Match2", $varId);
+			if(empty(GetValue($varId))) { SetValue($varId, ""); }
+
+			$position++;
+			$varId = $this->RegisterCustVariable("dataViewer_Match3", $dummyIdDataViewerSettings, "Filter RawData 3 (wildcards '*' | '?')", VARIABLETYPE_STRING, $position, "", $custActionScriptId);
+			$this->SetMyVariable("id_dataViewer_Match3", $varId);
+			if(empty(GetValue($varId))) { SetValue($varId, ""); }			
 
 			$position++;
 			$varId = $this->RegisterCustVariable("dataViewer_StopOnNextMatch", $dummyIdDataViewerSettings, "Stop on next Filter Match", VARIABLETYPE_BOOLEAN, $position, "~Switch", $custActionScriptId);
@@ -239,18 +252,29 @@ trait COMMON {
 			$this->SetMyVariable("id_notifyOzon", $varId);	
 
 			$position++;
-			$varId = $this->RegisterCustVariable("notifySondenTyp", $dummyIdNotify, "Sonden Typ", VARIABLETYPE_STRING, $position, "~TextBox", $custActionScriptId);
+			$varId = $this->RegisterCustVariable("notifySondenTyp", $dummyIdNotify, "Sonden Typ", VARIABLETYPE_STRING, $position, "", $custActionScriptId);
 			$this->SetMyVariable("id_notifySondenTyp", $varId);
 			SetValue($varId, "disabled");
 
 			$position++;
-			$varId = $this->RegisterCustVariable("notifyMatch", $dummyIdNotify, "Filter RawData (wildcards '*' | '?')", VARIABLETYPE_STRING, $position, "~TextBox", $custActionScriptId);
-			$this->SetMyVariable("id_notifyMatch", $varId);
-			if(empty(GetValue($varId))) { SetValue($varId, "disabled"); }
+			$varId = $this->RegisterCustVariable("notifyMatch1", $dummyIdNotify, "Filter RawData (wildcards '*' | '?')", VARIABLETYPE_STRING, $position, "", $custActionScriptId);
+			$this->SetMyVariable("id_notifyMatch1", $varId);
+			if(empty(GetValue($varId))) { SetValue($varId, ""); }
+
+			$position++;
+			$varId = $this->RegisterCustVariable("notifyMatch2", $dummyIdNotify, "Filter RawData (wildcards '*' | '?')", VARIABLETYPE_STRING, $position, "", $custActionScriptId);
+			$this->SetMyVariable("id_notifyMatch2", $varId);
+			if(empty(GetValue($varId))) { SetValue($varId, ""); }
+
+			$position++;
+			$varId = $this->RegisterCustVariable("notifyMatch3", $dummyIdNotify, "Filter RawData (wildcards '*' | '?')", VARIABLETYPE_STRING, $position, "", $custActionScriptId);
+			$this->SetMyVariable("id_notifyMatch3", $varId);
+			if(empty(GetValue($varId))) { SetValue($varId, ""); }			
 
 			$position++;
 			$varId = $this->RegisterCustVariable("notifyJsonStore", $dummyIdNotify, "JSON Store", VARIABLETYPE_STRING, $position, "", "");		
 			$this->SetMyVariable("id_notifyJsonStore", $varId);
+			//IPS_SetHidden($varId, true);
 			IPS_SetDisabled($varId, true);
 
 			$position++;
@@ -293,7 +317,7 @@ trait COMMON {
 			SetValue($varIdDistance, 20);
 
 			$position++;
-			$varIdAltitude = $this->RegisterCustVariable("notifyPG1ADW_Altitude", $dummyIdNotifyPG1ADW20, "Altitude", VARIABLETYPE_FLOAT, $position, "APRS_Distance.km", $custActionScriptId);
+			$varIdAltitude = $this->RegisterCustVariable("notifyPG1ADW_Altitude", $dummyIdNotifyPG1ADW20, "Altitude", VARIABLETYPE_INTEGER, $position, "APRS_Distance.m", $custActionScriptId);
 			$this->SetMyVariable("id_notifyPG1ADW_Altitude", $varIdAltitude);
 			SetValue($varIdAltitude, 4000);
 
@@ -356,9 +380,19 @@ trait COMMON {
 			$this->SetMyVariable("id_minMax_Distance", $varIdDistance);
 
 			$position++;
-			$varId = $this->RegisterCustVariable("minMax_Match", $dummyIdMinMaxSettings, "Filter RawData (wildcards '*' | '?')", VARIABLETYPE_STRING, $position, "~TextBox", $custActionScriptId);
-			$this->SetMyVariable("id_minMax_Match", $varId);
-			if(empty(GetValue($varId))) { SetValue($varId, "*"); }
+			$varId = $this->RegisterCustVariable("minMax_Match1", $dummyIdMinMaxSettings, "Filter RawData 1 (wildcards '*' | '?')", VARIABLETYPE_STRING, $position, "", $custActionScriptId);
+			$this->SetMyVariable("id_minMax_Match1", $varId);
+			if(empty(GetValue($varId))) { SetValue($varId, ""); }
+
+			$position++;
+			$varId = $this->RegisterCustVariable("minMax_Match2", $dummyIdMinMaxSettings, "Filter RawData 2 (wildcards '*' | '?')", VARIABLETYPE_STRING, $position, "", $custActionScriptId);
+			$this->SetMyVariable("id_minMax_Match2", $varId);
+			if(empty(GetValue($varId))) { SetValue($varId, ""); }
+			
+			$position++;
+			$varId = $this->RegisterCustVariable("minMax_Match3", $dummyIdMinMaxSettings, "Filter RawData 3 (wildcards '*' | '?')", VARIABLETYPE_STRING, $position, "", $custActionScriptId);
+			$this->SetMyVariable("id_minMax_Match3", $varId);
+			if(empty(GetValue($varId))) { SetValue($varId, ""); }			
 
 			$varIdMinMaxEnabledTemp = $this->RegisterCustVariable("minMaxEnabledTemp", $dummyIdMinMaxSettings, "Enable MinMax Tracking Temp", VARIABLETYPE_BOOLEAN, $position, "~Switch", $custActionScriptId);
 			$this->SetMyVariable("id_minMaxEnabledTemp", $varIdMinMaxEnabledTemp);
@@ -501,11 +535,11 @@ trait COMMON {
      }
  
  
-     private function SetMyVariable($varName, $value) {
+     private function SetMyVariable(string $varName, $value) {
          return $this->SetBuffer($varName, $value);
      }
  
-     private function GetMyVariable($varName) {
+     private function GetMyVariable(string $varName) {
          return $this->GetBuffer($varName);
      }
 
