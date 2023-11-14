@@ -51,8 +51,8 @@ class APRS extends IPSModule {
 		//$this->RegisterPropertyString("aprsLogin", "user PG1ADW-3 pass 22195 vers IPSOCI 0.1 filter s/O -m/200");
 		//$this->RegisterPropertyString("aprsNetbeacon", "PG1ADW-3>APNL51,TCPIP*,qAI,PG1ADW-2:!4819.54N/01425.57E`iGate PG1ADW RX@OCIvpc");
 
-		$this->RegisterPropertyString("aprsLogin", "user PG1ADW-4 pass 22195 vers IPSMM 0.2 filter s/O -m/200");
-		$this->RegisterPropertyString("aprsNetbeacon", "PG1ADW-4>APNL51,TCPIP*,qAI,PG1ADW-2:!4819.54N/01425.57E`iGate PG1ADW RX@MacMini");
+		$this->RegisterPropertyString("aprsLogin", "user PG1ADW-4 pass 22195 vers IPSOCI 0.2 filter s/O -m/200");
+		$this->RegisterPropertyString("aprsNetbeacon", "PG1ADW-4>APNL51,TCPIP*,qAI,PG1ADW-2:!4819.54N/01425.57E`iGate PG1ADW RX@OCI");
 
 		$this->RegisterPropertyString("telegramBotToken", "");
 		//$this->RegisterPropertyString("telegramChatId", "-4039965244");			//ADW20-Test
