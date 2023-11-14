@@ -12,6 +12,7 @@ class APRS extends IPSModule {
 	const CATEGORY_NAME_DataViewer = "DataViewer";
 	const CATEGORY_NAME_Notifications = "Notifications";
 	const CATEGORY_NAME_MinMax = "MinMax";
+	const DUMMY_NAME_MinMax = "MinMaxData";
 
 	private $logLevel = 3;
 	private $logCnt = 0;
@@ -54,9 +55,9 @@ class APRS extends IPSModule {
 		$this->RegisterPropertyString("aprsNetbeacon", "PG1ADW-4>APNL51,TCPIP*,qAI,PG1ADW-2:!4819.54N/01425.57E`iGate PG1ADW RX@MacMini");
 
 		$this->RegisterPropertyString("telegramBotToken", "");
-		$this->RegisterPropertyString("telegramChatId", "-4039965244");
+		//$this->RegisterPropertyString("telegramChatId", "-4039965244");			//ADW20-Test
+		$this->RegisterPropertyString("telegramChatId", "-459309428");				//ADW20_Radiosonde
 		
-
 		$this->RegisterTimer('Timer_AutoUpdate_APRS', 0, 'APRS_Timer_AutoUpdate_APRS($_IPS[\'TARGET\']);');
 	}
 
@@ -268,8 +269,10 @@ class APRS extends IPSModule {
 
 	public function ResetPG1ADWNotifyVariables(string $source) {
 		if ($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, 'RESET PG1ADWNotifyVariables'); }
+		SetValue($this->GetMyVariable("id_notifyPG1ADW"), false);
 		SetValue($this->GetMyVariable("id_notifyPG1ADW_Distance"), 20);
-		SetValue($this->GetMyVariable("id_notifyPG1ADW_Altitude"), 400);
+		SetValue($this->GetMyVariable("id_notifyPG1ADW_Altitude"), 4000);
+		SetValue($this->GetMyVariable("id_notifyPG1ADW_Cnt"), 0);
 		SetValue($this->GetMyVariable("id_notifyPG1ADW_Message"), "-");
 		SetValue($this->GetMyVariable("id_notifyPG1ADW_JsonStore"), "");
 		SetValue($this->GetMyVariable("id_notifyPG1ADW_JsonStoreCnt"), 0);
@@ -278,8 +281,13 @@ class APRS extends IPSModule {
 
 	public function ResetMinMaxVariables(string $source) {
 
-		$minMaxData =  $this->GetMyVariable("id_minMaxData");
-		if ($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf('RESET MinMaxVariables {DummyId: %s}', $minMaxData)); }
+		$id_minMaxData =  $this->GetMyVariable("id_minMaxData");
+		if(!IPS_InstanceExists($id_minMaxData)) {
+			$categoryIdMinMax = GetValueInteger($this->GetIDForIdent("categoryIdMinMax"));
+			$id_minMaxData = $this->CreateDummyInstance(self::self::DUMMY_NAME_MinMax, "MinMax Data", $categoryIdMinMax, 615);
+			$this->SetMyVariable("id_minMaxData", $id_minMaxData);
+		}
+		if ($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf('RESET MinMaxVariables {DummyId: %s}', $id_minMaxData)); }
 		SetValue($this->GetMyVariable("id_minMaxEnabled"), false);
 		SetValue($this->GetMyVariable("id_minMax_Distance"), 0);
 		SetValue($this->GetMyVariable("id_minMax_Match1"), "");
@@ -290,15 +298,13 @@ class APRS extends IPSModule {
 		SetValue($this->GetMyVariable("id_minMaxStop"), 0);
 		SetValue($this->GetMyVariable("id_minMaxCnt"), 0);
 
-		
-		$childIDs = IPS_GetChildrenIDs($minMaxData);
+		$childIDs = IPS_GetChildrenIDs($id_minMaxData);
 		foreach($childIDs as $childId) {
 			$objTyp = IPS_GetObject($childId)["ObjectType"];
 			if($objTyp == 2) {
 				SetValue($childId, 0);
 			}
 		}
-
 	}
 
 	public function ResetMinMaxWochenplan(string $source) {

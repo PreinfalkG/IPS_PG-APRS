@@ -35,8 +35,11 @@ trait APRSProcessData {
 						$this->WriteRawDataToLogFile(sprintf("#%d :: %s", $rawDataLines, $rawData));
 					}
 
-                    // -------------------- parse APRS Data to Array
+                    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                    //----------------- parse APRS Data to Array
 					$dataArr = $this->ParseRawDataNEW($rawData);
+                    //--------------------------------------------------------------------------------------------
+                    //--------------------------------------------------------------------------------------------
                     
                     $distPG1ADW = $dataArr["distPG1ADW"];
 
@@ -128,6 +131,14 @@ trait APRSProcessData {
                             if($filterResult["FilterPassed"]) {
 
                                 $minMaxData =  $this->GetMyVariable("id_minMaxData");
+                                if(!IPS_InstanceExists($minMaxData)) {
+                                    $varIdMinMaxEnabled = $this->GetMyVariable("id_minMaxEnabled");
+                                    SetValueBoolean($varIdMinMaxEnabled, false);
+                                    $varIdMinMaxMatch = $this->GetMyVariable("id_minMax_Match1");
+                                    SetValue($varIdMinMaxMatch, sprintf("PROBLEM 'MinMax Dummy Instance '%s' not found @%s" , $minMaxData, date('Y-m-d H:i:s', time())));
+                                    return false;
+                                }
+
                                 IPS_SetName($minMaxData, $filterResult["FilterText"] . " @" . date('d.m.Y H:i:s',time())); 
 
                                 if (true) {
@@ -155,7 +166,7 @@ trait APRSProcessData {
                                             $this->CheckMinValue("clbUpMin", "Clb Up MIN", $clb, $objName, $timeStamp);
                                             $this->CheckMaxValue("clbUpMax", "Clb Up MAX", $clb, $objName, $timeStamp);
                                         } else {
-                                            $clb = abs($clb);
+                                            //$clb = abs($clb);
                                             $this->CheckMinValue("clbDownMin", "Clb Down MIN", $clb, $objName, $timeStamp);
                                             $this->CheckMaxValue("clbDownMax", "Clb Down MAX", $clb, $objName, $timeStamp);
                                         }
@@ -170,12 +181,18 @@ trait APRSProcessData {
                                         
                                         $humidity = $dataArr["h"];
                                         $this->CheckMinValue("humidityMin", "Humidity MIN", $humidity, $objName, $timeStamp);
-                                        $this->CheckMaxValue("humidityMax", "Humidity M", $humidity, $objName, $timeStamp);		
+                                        $this->CheckMaxValue("humidityMax", "Humidity MAX", $humidity, $objName, $timeStamp);		
                                         
                                         $o3 = $dataArr["o3"];
                                         $this->CheckMinValue("o3Min", "o3 MIN", $o3, $objName, $timeStamp);
                                         $this->CheckMaxValue("o3Max", "o3 MAX", $o3, $objName, $timeStamp);	
                                         
+                                        $batt = $dataArr["batt"];
+                                        $this->CheckMinValue("battMin", "batt MIN", $batt, $objName, $timeStamp);
+                                        $this->CheckMaxValue("battMax", "batt MAX", $batt, $objName, $timeStamp);	                                        
+
+                                        
+
                                         $overGround = $dataArr["OG"];
                                         $this->CheckMinValue("overGroundMin", "OverGround MIN", $overGround, $objName, $timeStamp);
                                         $this->CheckMaxValue("overGroundMax", "OverGround MAX", $overGround, $objName, $timeStamp);									
@@ -191,6 +208,7 @@ trait APRSProcessData {
                     if(true) { 
                         $notifyEnabled = GetValue($this->GetMyVariable("id_notifyEnabled"));
                         if ($notifyEnabled) {
+
 
                             $doNotifyFor = [];
        
@@ -286,6 +304,7 @@ trait APRSProcessData {
                                     $jsonDataStoreArr[$dataStoreKey] = $dataStoreEntry;
 
                                     $linkRadioSondy =  sprintf("https://radiosondy.info/sonde.php?sondenumber=%s", $objName);
+                                    $linkwettersonde =  sprintf("https://www.wettersonde.net/map.php?sonde=%s", $objName);
                                     $notifyMsg = sprintf("Erster Datensatz der Sonde <b>'%s'</b> wurde von '%s' empfangen.\n", $objName, $callSign);
                                     $notifyMsg .= sprintf("\nNotification Trigger: <b>'%s'</b>\n", $notifyFor);
                                     $notifyMsg .= sprintf("\nEmpfänger: %s \nNummer: %s \nType: %s \nFrequenz: %s MHz \nAltitude: %s m \nSpeed: %s km/h \nClb: %s m/s ", $callSign, $objName, $type, $frequenz, $altitude, $speed, $clb);
@@ -295,7 +314,12 @@ trait APRSProcessData {
                                     } else {
                                         $notifyMsg .= sprintf("\nDistance to PG1ADW is: '%s'", $distPG1ADW);
                                     }
-                                    $notifyMsg .= sprintf("\n\n<i>%s</i>\n%s ", $rawData, $linkRadioSondy);
+                                    //$notifyMsg .= sprintf("\n\n<i>%s</i>\n%s ", $rawData, $linkRadioSondy);
+                                    $notifyMsg .= sprintf("\n<a href='%s'>RadioSondy.info</a> | <a href='%s'>Wettersonde.net</a>\n\n<code>%s</code>", $linkRadioSondy, $linkwettersonde, $rawData);
+
+
+                                    
+
 
                                     SetValue($varIdNotifyJsonStore, json_encode($jsonDataStoreArr, true));
                                     SetValue($this->GetMyVariable("id_notifyJsonStoreCnt"), count($jsonDataStoreArr));
@@ -331,15 +355,12 @@ trait APRSProcessData {
                                     $clb = $dataArr["Clb"];
                                     if (!is_null($clb)) {
                                         if ($clb < 0) {
-
-                                            if (!is_null($distPG1ADW)) {
-                                                $notifyPG1ADW_Altitude = GetValue($this->GetMyVariable("id_notifyPG1ADW_Altitude"));
-                                                if ($altitude < $notifyPG1ADW_Altitude) {
-                                                    $altitudeKey = round($altitude / 200) * 200;
-                                                    $dataStoreKey = sprintf("%s_pnLanding_%s", $objName, $altitudeKey);
-                                                    $notifyMsg = sprintf("!!! Possible Nearby LANDING !!!\nDatensatz der Sonde <b>'%s'</b> \n in %s km Entfernung und\n %s m Höhe wurde empfangen.", $objName, $distPG1ADW, $altitude);
-                                                }
-                                            }
+                                            $notifyPG1ADW_Altitude = GetValue($this->GetMyVariable("id_notifyPG1ADW_Altitude"));
+                                            if ($altitude < $notifyPG1ADW_Altitude) {
+                                                $altitudeKey = round($altitude / 250) * 250;
+                                                $dataStoreKey = sprintf("%s_pnLanding_%s", $objName, $altitudeKey);
+                                                $notifyMsg = sprintf("!!! Possible Nearby LANDING !!!\nDatensatz der Sonde <b>'%s'</b> \n in %s km Entfernung und\n %s m Höhe wurde empfangen.", $objName, $distPG1ADW, $altitude);
+                                            }                         
                                         }
                                     }
                                 }
@@ -357,7 +378,8 @@ trait APRSProcessData {
                                 $clb = $dataArr["Clb"];
                                 $rawData = $dataArr["rawData"];
 
-                                $jsonDataStore =  GetValue($this->GetMyVariable("notifyPG1ADW_JsonStore"));
+                                $id_notifyPG1ADW_JsonStore = $this->GetMyVariable("id_notifyPG1ADW_JsonStore");
+                                $jsonDataStore =  GetValue($id_notifyPG1ADW_JsonStore);
                                 $jsonDataStoreArr = json_decode($jsonDataStore, true);
                                 if ($jsonDataStoreArr === null) {
                                     $jsonDataStoreArr = array();
@@ -376,8 +398,8 @@ trait APRSProcessData {
                                     $notifyMsg .= sprintf("\n\nEmpfänger: %s \nNummer: %s \nType: %s \nFrequenz: %s MHz \nAltitude: %s m \nSpeed: %s km/h \nClb: %s m/s ", $callSign, $objName, $type, $frequenz, $altitude, $speed, $clb);
                                     $notifyMsg .= sprintf("\nDistance to PG1ADW: %s km\n\n<i>%s</i>\n%s ", $dataArr["distPG1ADW"], $rawData, $linkRadioSondy);
 
-                                    SetValue($jsonDataStore, json_encode($jsonDataStoreArr, true));
-                                    SetValue($this->GetMyVariable("id_notifyPG1ADW_JsonStore"), $notifyMsg);
+                                    SetValue($id_notifyPG1ADW_JsonStore, json_encode($jsonDataStoreArr, true));
+                                    SetValue($this->GetMyVariable("id_notifyPG1ADW_Message"), $notifyMsg);
                                     SetValue($this->GetMyVariable("id_notifyPG1ADW_JsonStoreCnt"), count($jsonDataStoreArr));
 
                                     SetValue($this->GetMyVariable("id_notifyPG1ADW_Message"), $notifyMsg);
@@ -525,8 +547,8 @@ trait APRSProcessData {
             SetValue($id_minMaxCnt, GetValue($id_minMaxCnt) - 1); 
         } else {
             $valueMin = GetValue($varId);
-            if((!is_null($valueMin)) AND ($value > 0)) {
-                if(($value < $valueMin) or ($valueMin == 0)) {
+            if((!is_null($valueMin)) AND ($value != 0) ) {                                //AND ($value > 0)
+                if(($value < $valueMin) or ($valueMin == 0)) {          //
                     SetValue($varId, $value);
                     IPS_SetName($varId, sprintf("%s '%s' @%s", $varName, $objName, date('d.m.Y H:i:s', $timeStamp)));
                     $id_minMaxCnt = $this->GetMyVariable("id_minMaxCnt");

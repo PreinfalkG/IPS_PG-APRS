@@ -103,8 +103,6 @@ trait APRSCommon {
                 $dataArr["rawDataPart1"] = $rawDataPart1 = substr($rawData, 0, $pos + 9);
                 $dataArr["rawDataPart2"] = $part2 = trim(substr($rawData, $pos + 9));
 
-
-
                 $enableLogFile_3 = GetValue($this->GetIDForIdent("enableLogFile_3"));
                 if ($enableLogFile_3) {
                     $this->WriteRawDataToLogFile(sprintf("Part 1 :: %s", $rawDataPart1));

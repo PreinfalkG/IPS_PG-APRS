@@ -180,7 +180,7 @@ trait COMMON {
 		if(true) {
 			$position = 400;
 
-			$dummyIdDataViewerSettings = $this->CreateDummyInstance("Data Viewer Settings", $categoryIdDataViewer);
+			$dummyIdDataViewerSettings = $this->CreateDummyInstance("DataViewerSettings", "Data Viewer Settings", $categoryIdDataViewer);
 
 			$position++;
 			$varId = $this->RegisterCustVariable("dataViewerEnabled", $dummyIdDataViewerSettings, "Enabled", VARIABLETYPE_BOOLEAN, $position, "~Switch", $custActionScriptId);
@@ -243,7 +243,7 @@ trait COMMON {
 		// Notification 
 		if(true) {
 			$position = 510;
-			$dummyIdNotify = $this->CreateDummyInstance("Telegram Notification", $categoryIdNotifications);
+			$dummyIdNotify = $this->CreateDummyInstance("Notify", "Telegram Notification", $categoryIdNotifications);
 
 			$position++;
 			$varId = $this->RegisterCustVariable("notifyEnabled", $dummyIdNotify, "Enable Notify", VARIABLETYPE_BOOLEAN, $position, "~Switch", $custActionScriptId);
@@ -260,7 +260,7 @@ trait COMMON {
 			$position++;
 			$varId = $this->RegisterCustVariable("notifySondenTyp", $dummyIdNotify, "Sonden Typ", VARIABLETYPE_STRING, $position, "", $custActionScriptId);
 			$this->SetMyVariable("id_notifySondenTyp", $varId);
-			SetValue($varId, "disabled");
+			SetValue($varId, "");
 
 			$position++;
 			$varId = $this->RegisterCustVariable("notifyMatch1", $dummyIdNotify, "Filter RawData (wildcards '*' | '?')", VARIABLETYPE_STRING, $position, "", $custActionScriptId);
@@ -312,7 +312,7 @@ trait COMMON {
 		// Notification PG1ADW20
 		if(true) {
 			$position = 520;
-			$dummyIdNotifyPG1ADW20 = $this->CreateDummyInstance("Telegram Notification PG1ADW20", $categoryIdNotifications);
+			$dummyIdNotifyPG1ADW20 = $this->CreateDummyInstance("NotifyPG1ADW", "Telegram Notification PG1ADW20", $categoryIdNotifications);
 
 			$varId = $this->RegisterCustVariable("notifyPG1ADW", $dummyIdNotifyPG1ADW20, "Enable Notify", VARIABLETYPE_BOOLEAN, $position, "~Switch", $custActionScriptId);
 			$this->SetMyVariable("id_notifyPG1ADW", $varId);
@@ -326,18 +326,7 @@ trait COMMON {
 			$varIdAltitude = $this->RegisterCustVariable("notifyPG1ADW_Altitude", $dummyIdNotifyPG1ADW20, "Altitude", VARIABLETYPE_INTEGER, $position, "APRS_Distance.m", $custActionScriptId);
 			$this->SetMyVariable("id_notifyPG1ADW_Altitude", $varIdAltitude);
 			SetValue($varIdAltitude, 4000);
-
-			$position++;
-			$scriptId = @IPS_GetObjectIDByIdent("setDefault", $dummyIdNotifyPG1ADW20);
-			if($scriptId === false) {		
-				$scriptContent = sprintf("<? SetValue(%d, 20); SetValue(%d, 5000); ?>", $varIdDistance, $varIdAltitude);
-				$scriptId = $this->RegisterScript("setDefault", "Set Default Distance/Altitude", $scriptContent, $position);
-				IPS_SetParent($scriptId, $dummyIdNotifyPG1ADW20);
-				IPS_SetHidden($scriptId, false);
-				IPS_SetDisabled($scriptId, false);
-			}
-
-			
+	
 			$position++;
 			$varId = $this->RegisterCustVariable("notifyPG1ADW_JsonStore", $dummyIdNotifyPG1ADW20, "JSON Store", VARIABLETYPE_STRING, $position, "", "");		
 			$this->SetMyVariable("id_notifyPG1ADW_JsonStore", $varId);
@@ -374,7 +363,7 @@ trait COMMON {
 		if(true) {
 			$position = 600;
 
-			$dummyIdMinMaxSettings = $this->CreateDummyInstance("MinMax Settings", $categoryIdMinMax);
+			$dummyIdMinMaxSettings = $this->CreateDummyInstance("MinMaxSettings", "MinMax Settings", $categoryIdMinMax);
 			IPS_SetPosition($dummyIdMinMaxSettings, $position);
 
 			$position++;
@@ -464,7 +453,7 @@ trait COMMON {
 			$this->SetMyVariable("id_resetMinMaxVariables", $scriptId);
 
 			$position++;
-			$varId = $this->CreateDummyInstance("MinMax Data", $categoryIdMinMax, $position);
+			$varId = $this->CreateDummyInstance(self::DUMMY_NAME_MinMax, "MinMax Data", $categoryIdMinMax, $position);
 			$this->SetMyVariable("id_minMaxData", $varId);
 
 		}
@@ -498,12 +487,13 @@ trait COMMON {
 	
 	}
 
-
-	protected function CreateDummyInstance(string $name, int $parentId, int $position=0) {
-        $instanceId = @IPS_GetInstanceIDByName($name, $parentId);
+	protected function CreateDummyInstance(string $ident, string $name, int $parentId, int $position=0) {
+        //$instanceId = @IPS_GetInstanceIDByName($name, $parentId);
+		$instanceId = @IPS_GetObjectIDByIdent($ident, $parentId);
         if($instanceId === false) {
            $instanceId = IPS_CreateInstance("{485D0419-BE97-4548-AA9C-C083EB82E61E}");
-           IPS_SetParent($instanceId, $parentId);
+		   IPS_SetIdent($instanceId, $ident);
+		   IPS_SetParent($instanceId, $parentId);
            IPS_SetName($instanceId, $name);
            IPS_SetPosition($instanceId, $position);
         }
@@ -556,50 +546,43 @@ trait COMMON {
 		
 		$varId = false;
 		$minMaxData =  $this->GetMyVariable("id_minMaxData");
-		if(!IPS_InstanceExists($minMaxData)) {
-			$varIdMinMaxEnabled = $this->GetMyVariable("id_minMaxEnabled");
-			SetValueBoolean($varIdMinMaxEnabled, false);
-			$varIdMinMaxMatch = $this->GetMyVariable("id_minMax_Match");
-			SetValue($varIdMinMaxMatch, sprintf("PROBLEM 'MinMax Dummy Instance '%s' not found @%s" , $minMaxData, date('Y-m-d H:i:s', time())));
-			return false;
-		} else {
 
-			//$this->AddLog(__FUNCTION__, sprintf("id_minMaxData: %s", $minMaxData));
-			$varId = @IPS_GetObjectIDByIdent($identName, $minMaxData);
-			if ($varId === false) {
-				$varId = IPS_CreateVariable(2);     //0 - Boolean | 1-Integer | 2 - Float | 3 - String
-				IPS_SetParent($varId, $minMaxData);
-				IPS_SetIdent($varId, $identName);
-				IPS_SetPosition($varId, 650);
-				IPS_SetName($varId, $varName);
-				
-				if(strpos($identName, "altitude") !== false) {
-					IPS_SetVariableCustomProfile($varId, "APRS_Distance.Meter");
-				} else if(strpos($identName, "overGround") !== false) {
-					IPS_SetVariableCustomProfile($varId, "APRS_Distance.Meter");
-				} else if(strpos($identName, "distance") !== false) {
-					IPS_SetVariableCustomProfile($varId, "APRS_Distance.km");
-				} else if(strpos($identName, "speed") !== false) {
-					IPS_SetVariableCustomProfile($varId, "~WindSpeed.kmh");
-				} else if(strpos($identName, "clb") !== false) {
-					IPS_SetVariableCustomProfile($varId, "~WindSpeed.ms");
-				} else if(strpos($identName, "pressure") !== false) {
-					IPS_SetVariableCustomProfile($varId, "~AirPressure.F");
-				} else if(strpos($identName, "temp") !== false) {
-					IPS_SetVariableCustomProfile($varId, "APRS_Temp");
-				} else if(strpos($identName, "humidity") !== false) {
-					IPS_SetVariableCustomProfile($varId, "~Humidity.F");
-				} else if(strpos($identName, "o3") !== false) {
-					//IPS_SetVariableCustomProfile($varId, "");											
-					//IPS_LogMessage("APRS_Modul MinMax", "no Profile for '".$identName."'");
-				} else {
-					IPS_LogMessage("APRS_Modul MinMax", "no Profile for '".$identName."'");
-					//IPS_SetVariableCustomProfile($varId, "");
-				}
-				IPS_SetInfo($varId, $varName);
-				IPS_SetDisabled($varId, true);
+		//$this->AddLog(__FUNCTION__, sprintf("id_minMaxData: %s", $minMaxData));
+		$varId = @IPS_GetObjectIDByIdent($identName, $minMaxData);
+		if ($varId === false) {
+			$varId = IPS_CreateVariable(2);     //0 - Boolean | 1-Integer | 2 - Float | 3 - String
+			IPS_SetParent($varId, $minMaxData);
+			IPS_SetIdent($varId, $identName);
+			IPS_SetPosition($varId, 650);
+			IPS_SetName($varId, $varName);
+			
+			if(strpos($identName, "altitude") !== false) {
+				IPS_SetVariableCustomProfile($varId, "APRS_Distance.Meter");
+			} else if(strpos($identName, "overGround") !== false) {
+				IPS_SetVariableCustomProfile($varId, "APRS_Distance.Meter");
+			} else if(strpos($identName, "distance") !== false) {
+				IPS_SetVariableCustomProfile($varId, "APRS_Distance.km");
+			} else if(strpos($identName, "speed") !== false) {
+				IPS_SetVariableCustomProfile($varId, "~WindSpeed.kmh");
+			} else if(strpos($identName, "clb") !== false) {
+				IPS_SetVariableCustomProfile($varId, "~WindSpeed.ms");
+			} else if(strpos($identName, "pressure") !== false) {
+				IPS_SetVariableCustomProfile($varId, "~AirPressure.F");
+			} else if(strpos($identName, "temp") !== false) {
+				IPS_SetVariableCustomProfile($varId, "APRS_Temp");
+			} else if(strpos($identName, "humidity") !== false) {
+				IPS_SetVariableCustomProfile($varId, "~Humidity.F");
+			} else if(strpos($identName, "batt") !== false) {
+				IPS_SetVariableCustomProfile($varId, "~Volt");
+			} else if(strpos($identName, "o3") !== false) {
+				//IPS_SetVariableCustomProfile($varId, "");											
+				//IPS_LogMessage("APRS_Modul MinMax", "no Profile for '".$identName."'");
+			} else {
+				IPS_LogMessage("APRS_Modul MinMax", "no Profile for '".$identName."'");
+				//IPS_SetVariableCustomProfile($varId, "");
 			}
-
+			IPS_SetInfo($varId, $varName);
+			IPS_SetDisabled($varId, true);
 		}
 
 		return $varId;
