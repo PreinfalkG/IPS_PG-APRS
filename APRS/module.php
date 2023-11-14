@@ -284,7 +284,7 @@ class APRS extends IPSModule {
 		$id_minMaxData =  $this->GetMyVariable("id_minMaxData");
 		if(!IPS_InstanceExists($id_minMaxData)) {
 			$categoryIdMinMax = GetValueInteger($this->GetIDForIdent("categoryIdMinMax"));
-			$id_minMaxData = $this->CreateDummyInstance(self::self::DUMMY_NAME_MinMax, "MinMax Data", $categoryIdMinMax, 615);
+			$id_minMaxData = $this->CreateDummyInstance(self::DUMMY_NAME_MinMax, "MinMax Data", $categoryIdMinMax, 615);
 			$this->SetMyVariable("id_minMaxData", $id_minMaxData);
 		}
 		if ($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf('RESET MinMaxVariables {DummyId: %s}', $id_minMaxData)); }
