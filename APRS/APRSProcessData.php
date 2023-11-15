@@ -310,16 +310,12 @@ trait APRSProcessData {
                                     $notifyMsg .= sprintf("\nEmpfänger: %s \nNummer: %s \nType: %s \nFrequenz: %s MHz \nAltitude: %s m \nSpeed: %s km/h \nClb: %s m/s ", $callSign, $objName, $type, $frequenz, $altitude, $speed, $clb);
                                     $distPG1ADW = $dataArr["distPG1ADW"];
                                     if (is_null($distPG1ADW)) {
-                                        $notifyMsg .= sprintf("\nDistance to PG1ADW: %s km", "NULL");
+                                        $notifyMsg .= sprintf("\nDistance to PG1ADW: '%s'", "NULL");
                                     } else {
-                                        $notifyMsg .= sprintf("\nDistance to PG1ADW is: '%s'", $distPG1ADW);
+                                        $notifyMsg .= sprintf("\nDistance to PG1ADW is: %s km", $distPG1ADW);
                                     }
                                     //$notifyMsg .= sprintf("\n\n<i>%s</i>\n%s ", $rawData, $linkRadioSondy);
                                     $notifyMsg .= sprintf("\n<a href='%s'>RadioSondy.info</a> | <a href='%s'>Wettersonde.net</a>\n\n<code>%s</code>", $linkRadioSondy, $linkwettersonde, $rawData);
-
-
-                                    
-
 
                                     SetValue($varIdNotifyJsonStore, json_encode($jsonDataStoreArr, true));
                                     SetValue($this->GetMyVariable("id_notifyJsonStoreCnt"), count($jsonDataStoreArr));
@@ -394,9 +390,18 @@ trait APRSProcessData {
                                     $dataStoreEntry["TimeStamp"] = date('d.m.Y H:i:s', time());
                                     $jsonDataStoreArr[$dataStoreKey] = $dataStoreEntry;
             
-                                    $linkRadioSondy =  sprintf("https://radiosondy.info/sonde.php?sondenumber=%s", $objName);
                                     $notifyMsg .= sprintf("\n\nEmpfänger: %s \nNummer: %s \nType: %s \nFrequenz: %s MHz \nAltitude: %s m \nSpeed: %s km/h \nClb: %s m/s ", $callSign, $objName, $type, $frequenz, $altitude, $speed, $clb);
-                                    $notifyMsg .= sprintf("\nDistance to PG1ADW: %s km\n\n<i>%s</i>\n%s ", $dataArr["distPG1ADW"], $rawData, $linkRadioSondy);
+                                    //$notifyMsg .= sprintf("\nDistance to PG1ADW: %s km\n\n<i>%s</i>\n%s ", $dataArr["distPG1ADW"], $rawData, $linkRadioSondy);
+
+                                    $distPG1ADW = $dataArr["distPG1ADW"];
+                                    if (is_null($distPG1ADW)) {
+                                        $notifyMsg .= sprintf("\nDistance to PG1ADW: '%s'", "NULL");
+                                    } else {
+                                        $notifyMsg .= sprintf("\nDistance to PG1ADW is: %s km", $distPG1ADW);
+                                    }
+                                    $linkRadioSondy =  sprintf("https://radiosondy.info/sonde.php?sondenumber=%s", $objName);
+                                    $linkwettersonde =  sprintf("https://www.wettersonde.net/map.php?sonde=%s", $objName);
+                                    $notifyMsg .= sprintf("\n<a href='%s'>RadioSondy.info</a> | <a href='%s'>Wettersonde.net</a>\n\n<code>%s</code>", $linkRadioSondy, $linkwettersonde, $rawData);
 
                                     SetValue($id_notifyPG1ADW_JsonStore, json_encode($jsonDataStoreArr, true));
                                     SetValue($this->GetMyVariable("id_notifyPG1ADW_Message"), $notifyMsg);

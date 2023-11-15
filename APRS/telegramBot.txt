@@ -52,8 +52,11 @@ function SendMessage($msg, $chat_id, $token) {
 	} else {
 		IncreaseCnt("OK", $chat_id);
 		$response = json_decode($response);
-		IPS_LogMessage($logSender, $msg . "\r\nRESULT: " . print_r($response, true));
-		//return $response;
+        $responseStr = str_replace("\n", "", print_r($response, true));
+        $responseStr = str_replace("        ", " ", $responseStr);
+        $responseStr = str_replace("    ", " ", $responseStr);
+        $responseStr = str_replace("  ", " ", $responseStr);
+		IPS_LogMessage($logSender, $msg . "\r\nRESULT: " . $responseStr);
 	}
 	CalcDuration_ms($time_start);
 }
