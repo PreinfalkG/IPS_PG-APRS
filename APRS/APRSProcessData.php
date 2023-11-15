@@ -586,7 +586,8 @@ trait APRSProcessData {
 		$telegramBotToken = $this->ReadPropertyString("telegramBotToken");
 		$telegramChatId = $this->ReadPropertyString("telegramChatId");
 
-		$notifyMsg .= sprintf("\n<b>%s</b> <i>@%s</i>", gethostname(), date('d.m.Y H:i:s', time()));
+        $instanceName = GetValue($this->GetIDForIdent("instanceName"));
+		$notifyMsg .= sprintf("\n<b>%s:%s</b> <i>@%s</i>", gethostname(), $instanceName, date('d.m.Y H:i:s', time()));
 		$scriptId = IPS_GetObjectIDByIdent ("telegramBot", $this->InstanceID);
 
         IPS_RunScriptEx($scriptId, Array("TelegramMessage" => $notifyMsg, "TelegramChatId" => $telegramChatId, "TelegramToken" => $telegramBotToken));

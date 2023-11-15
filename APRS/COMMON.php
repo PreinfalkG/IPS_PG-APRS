@@ -109,6 +109,13 @@ trait COMMON {
 		$position++;
 		$varId = $this->RegisterVariableString("aprsNetbeacon", "APRS Netbeacon", "", $position);
 		IPS_SetDisabled($varId, true);
+
+		$position++;
+		$varId = $this->RegisterVariableString("instanceName", "Instance Name", "", $position);
+		$instanceName = GetValue($varId);
+		if(empty($instanceName)) { SetValue($varId, $this->InstanceID); }
+		IPS_SetDisabled($varId, true);
+
 		//$varId = $this->RegisterVariableString("aprsServer", "APRS Server", "", 12);
 		//IPS_SetDisabled($varId, true);
 
