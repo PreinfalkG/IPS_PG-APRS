@@ -158,21 +158,27 @@ trait COMMON {
 		$position = 350;
 		$varId = $this->RegisterVariableBoolean("enableLogFile_1", "Log#1 - Write Received RawData", "~Switch", $position++);
 		IPS_SetVariableCustomAction($varId, $custActionScriptId);
+		IPS_SetDisabled($varId, true);
 		
 		$varId = $this->RegisterVariableBoolean("enableLogFile_2", "Log#2 - Write RawData Line to LogFiles", "~Switch", $position++);
 		IPS_SetVariableCustomAction($varId, $custActionScriptId);
+		IPS_SetDisabled($varId, true);
 		
 		$varId = $this->RegisterVariableBoolean("enableLogFile_3", "Log#3 - Write Part 1 RawData", "~Switch", $position++);
 		IPS_SetVariableCustomAction($varId, $custActionScriptId);
+		IPS_SetDisabled($varId, true);
 		
 		$varId = $this->RegisterVariableBoolean("enableLogFile_4", "Log#4 - Write Part 2 RawData ", "~Switch", $position++);
 		IPS_SetVariableCustomAction($varId, $custActionScriptId);		
+		IPS_SetDisabled($varId, true);
 		
 		$varId = $this->RegisterVariableBoolean("enableLogFile_5", "Log#5 - Write Part 2 as Array", "~Switch", $position++);
 		IPS_SetVariableCustomAction($varId, $custActionScriptId);	
+		IPS_SetDisabled($varId, true);
 
 		$varId = $this->RegisterVariableBoolean("enableLogFile_DataViewer", "Log#6 - DataViewer", "~Switch", $position++);
 		IPS_SetVariableCustomAction($varId, $custActionScriptId);	
+		IPS_SetDisabled($varId, false);
 
 
 		// ------------------------------------------------------------------------------------------------------------------------------------------
