@@ -235,6 +235,16 @@ class APRS extends IPSModule {
 		SetValue($this->GetIDForIdent("processingTotalDuration"), 0);
 		SetValue($this->GetIDForIdent("instanzInactivCnt"), 0);
 		SetValue($this->GetIDForIdent("lastDataReceived"), 0);
+
+		$scriptId = $this->GetIDForIdent("telegramBot");
+
+		$childIDs = IPS_GetChildrenIDs($scriptId);
+		foreach($childIDs as $childId) {
+			$objTyp = IPS_GetObject($childId)["ObjectType"];
+			if($objTyp == OBJECTTYPE_VARIABLE) {
+				SetValue($childId, 0);
+			}
+		}
 	}
 
 	public function ResetDataViewerVariables(string $source) {

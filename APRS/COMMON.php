@@ -473,8 +473,8 @@ trait COMMON {
 			$scriptFileSource = str_replace("%%INSTANCE_ID%%", strval($this->InstanceID), $file);			
 		}
 		$objId = $this->RegisterScript("telegramBot", "TelegramBot", $scriptFileSource, 900);
-		IPS_SetHidden($objId, true);
-
+		IPS_SetHidden($objId, false);
+		IPS_SetDisabled($objId, true);
 
 		IPS_ApplyChanges($archivInstanzID);
 
