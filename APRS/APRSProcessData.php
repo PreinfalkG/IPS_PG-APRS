@@ -2,18 +2,18 @@
 
 trait APRSProcessData {
 
-	protected function ProcessData($rawData) {
+	protected function ProcessData($receivedData) {
 
 		$returnVal = 0;
 
-		SetValue($this->GetIDForIdent("receivedBytes"), strlen($rawData));
-		$rawData = rtrim($rawData, " \n\r\t\v\0");
-		$rawDataArr = explode(PHP_EOL, $rawData);
+		SetValue($this->GetIDForIdent("receivedBytes"), strlen($receivedData));
+		$receivedData = rtrim($receivedData, " \n\r\t\v\0");
+		$rawDataArr = explode(PHP_EOL, $receivedData);
 		SetValue($this->GetIDForIdent("receivedFrames"), count($rawDataArr));
 
 		$enableLogFile_1 = GetValue($this->GetIDForIdent("enableLogFile_1"));
 		if ($enableLogFile_1) {
-			$this->WriteRawDataToLogFile($rawData);
+			$this->WriteRawDataToLogFile($receivedData);
 		}
 
         // ------------------------------------------------------------------------------------------------------

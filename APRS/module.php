@@ -207,11 +207,11 @@ class APRS extends IPSModule {
 		SetValue($this->GetIDForIdent("receiveCnt"), GetValue($this->GetIDForIdent("receiveCnt")) + 1);
 		SetValue($this->GetIDForIdent("lastDataReceived"), time());
 		$data = json_decode($JSONString);
-		$rawData = utf8_decode($data->Buffer);
+		$receivedData = utf8_decode($data->Buffer);
 
-		if ($this->logLevel >= LogLevel::TRACE) { $this->AddLog(__FUNCTION__, $rawData, 0); }
+		if ($this->logLevel >= LogLevel::TRACE) { $this->AddLog(__FUNCTION__, $receivedData, 0); }
 
-		$this->ProcessData($rawData);
+		$this->ProcessData($receivedData);
 
 		$processingTotalDuration = $this->CalcDuration_ms($time_start);
 		SetValue($this->GetIDForIdent("processingTotalDuration"), $processingTotalDuration);
