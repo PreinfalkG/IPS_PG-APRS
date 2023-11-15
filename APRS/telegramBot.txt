@@ -4,6 +4,9 @@ $telegramToken = "";
 $telegramChatId = "";
 $telegramMessage = "";
 
+$ipsSelf = $_IPS['SELF'];
+$logSender = sprintf("TelegramBot_%s", $ipsSelf);
+
 
 if( $_IPS['SENDER'] == "RunScript") {
 	$telegramToken = $_IPS['TelegramToken'];
@@ -13,19 +16,20 @@ if( $_IPS['SENDER'] == "RunScript") {
 
 if(empty($telegramToken)){
 	IncreaseCnt("Error", "Token_EMPTY");
-	IPS_LogMessage("TelegramBot", "WARN: Telegram 'Token' EMPTY!");
+	IPS_LogMessage($logSender, "WARN: Telegram 'Token' EMPTY!");
 	return false;
 } else if(empty($telegramChatId)){
-	IPS_LogMessage("TelegramBot", "WARN: Telegram 'ChatId' EMPTY!");
 	IncreaseCnt("Error", "ChatId_EMPTY");
+	IPS_LogMessage($logSender, "WARN: Telegram 'ChatId' EMPTY!");
+	return false;
+} else if(empty($telegramMessage)) {
+	IncreaseCnt("WARN", "Message_EMPTY");
+	IPS_LogMessage($logSender, "WARN: Telegram 'Message' EMPTY!");
 	return false;
 } else {
 	SendMessage($telegramMessage, $telegramChatId, $telegramToken);
 }
 
-if(empty($telegramMessage)){
-	$telegramMessage = "empty Message ";
-}
 
 //ADW20_Radiosonde		'Telegram' => -459309428, 
 //ADW20_TTN 			'Telegram' => -597879976,
@@ -35,17 +39,20 @@ function SendMessage($msg, $chat_id, $token) {
 
     $time_start = microtime(true);
 
-	$msg = urlencode($msg);
+	$ipsSelf = $_IPS['SELF'];
+	$logSender = sprintf("TelegramBot_%s", $ipsSelf);
+
+	$msgUrlEncoded = urlencode($msg);
 	//https://api.telegram.org/%%TOKEN%%/sendMessage?chat_id=-xxxxxxxxxxxxx&text=API_Test
-	$apiURL = sprintf("https://api.telegram.org/bot%s/sendMessage?parse_mode=%s&chat_id=%s&text=%s", $token, "HTML", $chat_id, $msg);
+	$apiURL = sprintf("https://api.telegram.org/bot%s/sendMessage?parse_mode=%s&chat_id=%s&text=%s", $token, "HTML", $chat_id, $msgUrlEncoded);
 	$response = @file_get_contents($apiURL);
 	if($response === false){
-		IPS_LogMessage("TelegramBot", "ERROR: Telegram SendMessage");
 		IncreaseCnt("Error", $chat_id);
+		IPS_LogMessage($logSender, "ERROR: Telegram SendMessage > " . print_r($response, true));
 	} else {
-		$response = json_decode($response);
 		IncreaseCnt("OK", $chat_id);
-		//IPS_LogMessage("TelegramBot", print_r($response, true));
+		$response = json_decode($response);
+		IPS_LogMessage($logSender, $msg . "\r\nRESULT: " . print_r($response, true));
 		//return $response;
 	}
 	CalcDuration_ms($time_start);
@@ -55,14 +62,14 @@ function CalcDuration_ms($time_start) {
 	$duration = microtime(true) - $time_start;
 	$duration = round($duration * 1000, 2);
 
-	$parentId = $_IPS['SELF'];
+	$ipsSelf = $_IPS['SELF'];
 	$identName = "telegram_LastDuration";
 
-	$varId = @IPS_GetObjectIDByIdent($identName, $parentId);
+	$varId = @IPS_GetObjectIDByIdent($identName, $ipsSelf);
 	if ($varId === false) {
 		$varId = IPS_CreateVariable(2);     //0 - Boolean | 1-Integer | 2 - Float | 3 - String
 		IPS_SetIdent($varId, $identName);
-		IPS_SetParent($varId, $parentId);
+		IPS_SetParent($varId, $ipsSelf);
 		IPS_SetPosition($varId, 902);
 		IPS_SetName($varId, $identName . " ms");
 		IPS_SetDisabled($varId, true);
@@ -74,17 +81,17 @@ function IncreaseCnt(string $result, string $identName) {
 
 	//IPS_LogMessage("TelegramBot", sprintf("%s | %s", $result, $identName));
 
-	$parentId = $_IPS['SELF'];
-	//$parentId = IPS_GetParent($IPS_SELF);
+	$ipsSelf = $_IPS['SELF'];
+	//$parentId = IPS_GetParent($ipsSelf);
 
 	$identName = str_replace("-", "", $identName);
 	$identName = sprintf("%s_%s", $identName, $result);	
 
-	$varId = @IPS_GetObjectIDByIdent($identName, $parentId);
+	$varId = @IPS_GetObjectIDByIdent($identName, $ipsSelf);
 	if ($varId === false) {
 		$varId = IPS_CreateVariable(1);     //0 - Boolean | 1-Integer | 2 - Float | 3 - String
 		IPS_SetIdent($varId, $identName);
-		IPS_SetParent($varId, $parentId);
+		IPS_SetParent($varId, $ipsSelf);
 		IPS_SetPosition($varId, 901);
 		IPS_SetName($varId, "Cnt_" . $identName);
 		IPS_SetDisabled($varId, true);
