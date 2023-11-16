@@ -297,10 +297,11 @@ trait APRSProcessData {
 
                                     if (count($jsonDataStoreArr) > 99) { $jsonDataStoreArr = array(); }
 
+                                    $dateTimeStr = date('d.m.Y H:i:s', time());
                                     $dataStoreEntry = array();
                                     $dataStoreEntry["objName"] = $objName;
                                     $dataStoreEntry["Trigger"] = $notifyFor;
-                                    $dataStoreEntry["TimeStamp"] = date('d.m.Y H:i:s', time());
+                                    $dataStoreEntry["TimeStamp"] = $dateTimeStr;
                                     $jsonDataStoreArr[$dataStoreKey] = $dataStoreEntry;
 
                                     $linkRadioSondy =  sprintf("https://radiosondy.info/sonde.php?sondenumber=%s", $objName);
@@ -319,7 +320,7 @@ trait APRSProcessData {
 
                                     SetValue($varIdNotifyJsonStore, json_encode($jsonDataStoreArr, true));
                                     SetValue($this->GetMyVariable("id_notifyJsonStoreCnt"), count($jsonDataStoreArr));
-                                    SetValue($this->GetMyVariable("id_notifyMessage"), $notifyMsg);
+                                    SetValue($this->GetMyVariable("id_notifyMessage"), $notifyMsg . " @" . $dateTimeStr);
                                     $id_notifyCnt = $this->GetMyVariable("id_notifyCnt");
                                     SetValue($id_notifyCnt, GetValue($id_notifyCnt)+1);
 
@@ -385,9 +386,10 @@ trait APRSProcessData {
 
                                     if (count($jsonDataStoreArr) > 99) { $jsonDataStoreArr = array(); }
 
+                                    $dateTimeStr = date('d.m.Y H:i:s', time());
                                     $dataStoreEntry = array();
                                     $dataStoreEntry["objName"] = $objName;
-                                    $dataStoreEntry["TimeStamp"] = date('d.m.Y H:i:s', time());
+                                    $dataStoreEntry["TimeStamp"] = $dateTimeStr;
                                     $jsonDataStoreArr[$dataStoreKey] = $dataStoreEntry;
             
                                     $notifyMsg .= sprintf("\n\nEmpfänger: %s \nNummer: %s \nType: %s \nFrequenz: %s MHz \nAltitude: %s m \nSpeed: %s km/h \nClb: %s m/s ", $callSign, $objName, $type, $frequenz, $altitude, $speed, $clb);
@@ -404,10 +406,10 @@ trait APRSProcessData {
                                     $notifyMsg .= sprintf("\n<a href='%s'>RadioSondy.info</a> | <a href='%s'>Wettersonde.net</a>\n\n<code>%s</code>", $linkRadioSondy, $linkwettersonde, $rawData);
 
                                     SetValue($id_notifyPG1ADW_JsonStore, json_encode($jsonDataStoreArr, true));
-                                    SetValue($this->GetMyVariable("id_notifyPG1ADW_Message"), $notifyMsg);
+                                    SetValue($this->GetMyVariable("id_notifyPG1ADW_Message"), $notifyMsg . " @" . $dateTimeStr);
                                     SetValue($this->GetMyVariable("id_notifyPG1ADW_JsonStoreCnt"), count($jsonDataStoreArr));
 
-                                    SetValue($this->GetMyVariable("id_notifyPG1ADW_Message"), $notifyMsg);
+                                    SetValue($this->GetMyVariable("id_notifyPG1ADW_Message"), $notifyMsg . " @" . $dateTimeStr);
                                     $id_notifyPG1ADW_Cnt = $this->GetMyVariable("id_notifyPG1ADW_Cnt");
                                     SetValue($id_notifyPG1ADW_Cnt, GetValue($id_notifyPG1ADW_Cnt)+1);
 
