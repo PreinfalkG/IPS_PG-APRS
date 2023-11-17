@@ -71,8 +71,13 @@ trait APRSCommon {
             $dataArr["Sats"] = null;
             $dataArr["BK"] = null;
             $dataArr["rx"] = null;
+            $dataArr["tx"] = null;
+            $dataArr["TxOff"] = null;
+            $dataArr["TxPastBurst"] = null;
+            $dataArr["calibration"] = null;
             $dataArr["powerup"] = null;
             $dataArr["S"] = null;
+            $dataArr["SV"] = null;
             $dataArr["azimuth"] = null;
             $dataArr["distance"] = null;
             $dataArr["OG"] = null;
@@ -268,7 +273,11 @@ trait APRSCommon {
                         $otherData = "";
                         //$rawDataPart2b = str_replace("Clb=", " Clb=", $rawDataPart2b);
                         $rawDataPart2b = str_replace(" MHz ", "MHz ", $rawDataPart2b);
+                        $rawDataPart2b = str_replace(" b=", " batt=", $rawDataPart2b);
+                        $rawDataPart2b = str_replace(" B=", " batt=", $rawDataPart2b);
+                        $rawDataPart2b = str_replace(" v=", " batt=", $rawDataPart2b);
                         $rawDataPart2b = str_replace("powerup h:m:s ", " powerup=", $rawDataPart2b);
+                        $rawDataPart2b = str_replace("calibration ", " calibration=", $rawDataPart2b);
               
                         $dataArr["rawDataPart2a"] = $rawDataPart2a;
                         $dataArr["rawDataPart2b"] = $rawDataPart2b;
@@ -325,8 +334,18 @@ trait APRSCommon {
                                 $dataArr["BK"] = $value;
                             } else if (false !== $value = $this->ExtractStringValue($part2Entry, "_rx=")) {
                                 $dataArr["rx"] = $value;
+                            } else if (false !== $value = $this->ExtractStringValue($part2Entry, "_tx=")) {
+                                $dataArr["tx"] = $value;
+                            } else if (false !== $value = $this->ExtractStringValue($part2Entry, "_TxOff=")) {
+                                $dataArr["TxOff"] = $value;     
+                            } else if (false !== $value = $this->ExtractStringValue($part2Entry, "_TxPastBurst=")) {
+                                $dataArr["TxPastBurst"] = $value;                                                                
+                            } else if (false !== $value = $this->ExtractStringValue($part2Entry, "_calibration=")) {
+                                $dataArr["calibration"] = $value;
                             } else if (false !== $value = $this->ExtractStringValue($part2Entry, "_S=")) {
                                 $dataArr["S"] = $value;
+                            } else if (false !== $value = $this->ExtractStringValue($part2Entry, "_SV=")) {
+                                $dataArr["SV"] = $value;                                
                             } else if (false !== $value = $this->ExtractFloatValue($part2Entry, "_azimuth=")) {
                                 $dataArr["azimuth"] = $value;
                             } else if (false !== $value = $this->ExtractFloatValue($part2Entry, "_OG=")) {

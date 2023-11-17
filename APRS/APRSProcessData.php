@@ -89,6 +89,15 @@ trait APRSProcessData {
                                 }
                             } 
                         }
+
+                        if(false) {          //check 'otherData' for '=' -> only for manuel Data Check
+                            $otherDataCheck = $dataArr["otherData"];
+                            $pos = strpos($otherDataCheck, "=");
+                            if ($pos !== false) {                          
+                                SetValueBoolean($this->GetMyVariable("id_dataViewerEnabled"), false);
+                            }
+                        }
+                        
                     }
                     // -------------------------------------------------------------------------------------------
 
