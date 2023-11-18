@@ -13,13 +13,20 @@ trait COMMON {
 		} 
 
 
-		if ( !IPS_VariableProfileExists('APRS_Distance.Meter') ) {
-			IPS_CreateVariableProfile('APRS_Distance.Meter', 2 );
-			//IPS_SetVariableProfileDigits('APRS_Distance.Meter', 0 );
-			IPS_SetVariableProfileText('APRS_Distance.Meter', "", " m" );
-			IPS_SetVariableProfileValues("APRS_Distance.Meter", 0, 8000, 50);
-			IPS_SetVariableProfileIcon ("APRS_Distance.Meter", "Distance");
+		if ( !IPS_VariableProfileExists('APRS_Altitude.m') ) {
+			IPS_CreateVariableProfile('APRS_Altitude.m', 1 );
+			//IPS_SetVariableProfileDigits('APRS_Altitude.m', 0 );
+			//IPS_SetVariableProfileText('APRS_Altitude.m', "", " m" );
+			IPS_SetVariableProfileValues("APRS_Altitude.m", -35000, 35000, 100);
+			IPS_SetVariableProfileIcon ("APRS_Altitude.m", "HollowArrowUp");
+
+			IPS_SetVariableProfileAssociation ("APRS_Altitude.m", -35000, "%d m", "HollowArrowUp", -1);
+			IPS_SetVariableProfileAssociation ("APRS_Altitude.m", -1, "%d m", "HollowArrowUp",  -1); 
+			IPS_SetVariableProfileAssociation ("APRS_Altitude.m", 0, "Filter deaktiviert", "Cross", -1); 
+			IPS_SetVariableProfileAssociation ("APRS_Altitude.m", 1, "bis %d m", "HollowArrowDown", -1); 
+			IPS_SetVariableProfileAssociation ("APRS_Altitude.m", 35000, "bis %d m", "HollowArrowDown", -1); 
 		} 
+
 
 		if ( !IPS_VariableProfileExists('APRS_Distance.km') ) {
 			IPS_CreateVariableProfile('APRS_Distance.km', 2 );
@@ -123,7 +130,7 @@ trait COMMON {
 		// ------------------------------------------------------------------------------------------------------------------------------------------
 		// Counter Variables
 		$position = 200;
-		$varId = $this->RegisterVariableInteger("receiveCnt", "Receive Cnt", "", $position++);
+		$varId = $this->RegisterVariableInteger("receiveCnt", "Receive Frames Total", "", $position++);
 		IPS_SetDisabled($varId, true);
 		$varId = $this->RegisterVariableInteger("receivedBytes", "Received Bytes", "", $position++);
 		IPS_SetDisabled($varId, true);
@@ -205,6 +212,10 @@ trait COMMON {
 			//SetValue($varIdDistance, 4000);
 
 			$position++;
+			$varIdAltitude = $this->RegisterCustVariable("dataViewer_Altitude", $dummyIdDataViewerSettings, "Altitude", VARIABLETYPE_INTEGER, $position, "APRS_Altitude.m", $custActionScriptId);
+			$this->SetMyVariable("id_dataViewer_Altitude", $varIdAltitude);
+
+			$position++;
 			$varId = $this->RegisterCustVariable("dataViewer_Match1", $dummyIdDataViewerSettings, "Filter RawData 1 (wildcards '*' | '?')", VARIABLETYPE_STRING, $position, "", $custActionScriptId);
 			$this->SetMyVariable("id_dataViewer_Match1", $varId);
 			if(empty(GetValue($varId))) { SetValue($varId, ""); }
@@ -267,7 +278,11 @@ trait COMMON {
 			$this->SetMyVariable("id_notifyDistance", $varIdDistance);
 
 			$position++;
-			$varId = $this->RegisterCustVariable("notifyOzon", $dummyIdNotify, "Ozon", VARIABLETYPE_BOOLEAN, $position, "~Switch", $custActionScriptId);
+			$varIdAltitude = $this->RegisterCustVariable("notify_Altitude", $dummyIdNotify, "Altitude", VARIABLETYPE_INTEGER, $position, "APRS_Altitude.m", $custActionScriptId);
+			$this->SetMyVariable("id_notifyAltitude", $varIdAltitude);
+
+			$position++;
+			$varId = $this->RegisterCustVariable("notifyOzon", $dummyIdNotify, "Ozon (only with Distance Filter)", VARIABLETYPE_BOOLEAN, $position, "~Switch", $custActionScriptId);
 			$this->SetMyVariable("id_notifyOzon", $varId);	
 
 			$position++;
@@ -336,7 +351,7 @@ trait COMMON {
 			SetValue($varIdDistance, 20);
 
 			$position++;
-			$varIdAltitude = $this->RegisterCustVariable("notifyPG1ADW_Altitude", $dummyIdNotifyPG1ADW20, "Altitude", VARIABLETYPE_INTEGER, $position, "APRS_Distance.m", $custActionScriptId);
+			$varIdAltitude = $this->RegisterCustVariable("notifyPG1ADW_Altitude", $dummyIdNotifyPG1ADW20, "Altitude", VARIABLETYPE_INTEGER, $position, "APRS_Altitude.m", $custActionScriptId);
 			$this->SetMyVariable("id_notifyPG1ADW_Altitude", $varIdAltitude);
 			SetValue($varIdAltitude, 4000);
 	
@@ -386,6 +401,10 @@ trait COMMON {
 			$position++;
 			$varIdDistance = $this->RegisterCustVariable("minMax_Distance", $dummyIdMinMaxSettings, "Filter Distance to PG1ADW", VARIABLETYPE_FLOAT, $position, "APRS_Distance.km", $custActionScriptId);
 			$this->SetMyVariable("id_minMax_Distance", $varIdDistance);
+
+			$position++;
+			$varIdAltitude = $this->RegisterCustVariable("minMax_Altitude", $dummyIdMinMaxSettings, "Altitude", VARIABLETYPE_INTEGER, $position, "APRS_Altitude.m", $custActionScriptId);
+			$this->SetMyVariable("id_minMax_Altitude", $varIdAltitude);
 
 			$position++;
 			$varId = $this->RegisterCustVariable("minMax_Match1", $dummyIdMinMaxSettings, "Filter RawData 1 (wildcards '*' | '?')", VARIABLETYPE_STRING, $position, "", $custActionScriptId);
@@ -570,9 +589,9 @@ trait COMMON {
 			IPS_SetName($varId, $varName);
 			
 			if(strpos($identName, "altitude") !== false) {
-				IPS_SetVariableCustomProfile($varId, "APRS_Distance.Meter");
+				IPS_SetVariableCustomProfile($varId, "APRS_Distance.m");
 			} else if(strpos($identName, "overGround") !== false) {
-				IPS_SetVariableCustomProfile($varId, "APRS_Distance.Meter");
+				IPS_SetVariableCustomProfile($varId, "APRS_Distance.m");
 			} else if(strpos($identName, "distance") !== false) {
 				IPS_SetVariableCustomProfile($varId, "APRS_Distance.km");
 			} else if(strpos($identName, "speed") !== false) {

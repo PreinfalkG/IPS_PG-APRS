@@ -251,6 +251,7 @@ class APRS extends IPSModule {
 		if ($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, 'RESET DataViewerVariables'); }
 		SetValue($this->GetMyVariable("id_dataViewerEnabled"), false);
 		SetValue($this->GetMyVariable("id_dataViewer_Distance"), 0);
+		SetValue($this->GetMyVariable("id_dataViewer_Altitude"), 0);
 		SetValue($this->GetMyVariable("id_dataViewer_Match1"), "");
 		SetValue($this->GetMyVariable("id_dataViewer_Match2"), "");
 		SetValue($this->GetMyVariable("id_dataViewer_Match3"), "");
@@ -265,6 +266,7 @@ class APRS extends IPSModule {
 		if ($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, 'RESET NotifyVariables'); }
 		SetValue($this->GetMyVariable("id_notifyEnabled"), false);
 		SetValue($this->GetMyVariable("id_notifyDistance"), 400);
+		SetValue($this->GetMyVariable("id_notifyAltitude"), 0);
 		SetValue($this->GetMyVariable("id_notifyOzon"), false);
 		SetValue($this->GetMyVariable("id_notifySondenTyp"), "");
 		SetValue($this->GetMyVariable("id_notifyMatch1"), "");
@@ -300,6 +302,7 @@ class APRS extends IPSModule {
 		if ($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf('RESET MinMaxVariables {DummyId: %s}', $id_minMaxData)); }
 		SetValue($this->GetMyVariable("id_minMaxEnabled"), false);
 		SetValue($this->GetMyVariable("id_minMax_Distance"), 0);
+		SetValue($this->GetMyVariable("id_minMax_Altitude"), 0);
 		SetValue($this->GetMyVariable("id_minMax_Match1"), "");
 		SetValue($this->GetMyVariable("id_minMax_Match2"), "");
 		SetValue($this->GetMyVariable("id_minMax_Match3"), "");
@@ -313,6 +316,7 @@ class APRS extends IPSModule {
 			$objTyp = IPS_GetObject($childId)["ObjectType"];
 			if($objTyp == 2) {
 				SetValue($childId, 0);
+				IPS_SetName($childId, IPS_GetObject($childId)["ObjectInfo"]);
 			}
 		}
 	}

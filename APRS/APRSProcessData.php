@@ -42,13 +42,14 @@ trait APRSProcessData {
                     //--------------------------------------------------------------------------------------------
                     
                     $distPG1ADW = $dataArr["distPG1ADW"];
+                    $altitude = $dataArr["altitude"];
 
-                    // ++++++++++++ IPS Data View ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                    // ++++++++++++ Data Viewer ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                     if(true) {
                         $dataViewerEnabled = GetValueBoolean($this->GetMyVariable("id_dataViewerEnabled"));
                         $varIdDataViewer = $this->GetMyVariable("id_dataViewer");				
                         if ($dataViewerEnabled) {
-                            $filterResult = $this->FilterAPRSData("Data Viewer", $rawData, $distPG1ADW, "id_dataViewer_Distance", "id_dataViewer_Match1", "id_dataViewer_Match2", "id_dataViewer_Match3");
+                            $filterResult = $this->FilterAPRSData("Data Viewer", $rawData, $distPG1ADW, $altitude, "id_dataViewer_Distance", "id_dataViewer_Altitude", "id_dataViewer_Match1", "id_dataViewer_Match2", "id_dataViewer_Match3");
                             $filterTxt = $filterResult["FilterText"];
                             if($filterResult["FilterPassed"]) {
                                 SetValue($varIdDataViewer, print_r($dataArr, true));
@@ -136,7 +137,7 @@ trait APRSProcessData {
                         }
 
                         if($minMaxEnabled) {
-                            $filterResult = $this->FilterAPRSData("MinMax Data", $rawData, $distPG1ADW, "id_minMax_Distance", "id_minMax_Match1", "id_minMax_Match2", "id_minMax_Match3");
+                            $filterResult = $this->FilterAPRSData("MinMax Data", $rawData, $distPG1ADW, $altitude, "id_minMax_Distance", "id_minMax_Altitude", "id_minMax_Match1", "id_minMax_Match2", "id_minMax_Match3");
                             if($filterResult["FilterPassed"]) {
 
                                 $minMaxData =  $this->GetMyVariable("id_minMaxData");
@@ -215,15 +216,13 @@ trait APRSProcessData {
 
 					// ++++++++++++ Notify +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                     if(true) { 
+                        $doNotifyFor = [];
                         $notifyEnabled = GetValue($this->GetMyVariable("id_notifyEnabled"));
                         if ($notifyEnabled) {
 
-
-                            $doNotifyFor = [];
-       
                             $notifyDistance = GetValue($this->GetMyVariable("id_notifyDistance"));
-                            if(($notifyDistance == 0) or (is_null($distPG1ADW)) or ($distPG1ADW < $notifyDistance)) { 
-
+                            if(($notifyDistance == 0) or ((!empty($distPG1ADW)) and ($distPG1ADW < $notifyDistance))) { 
+                              
                                 $notifyOzon = GetValueBoolean($this->GetMyVariable("id_notifyOzon"));
                                 if($notifyOzon) {
                                     $o3Value = $dataArr["o3"];
@@ -232,53 +231,73 @@ trait APRSProcessData {
                                     }
                                 }
 
-                                $notifySondenTyp =  GetValue($this->GetMyVariable("id_notifySondenTyp"));
-                                if(empty($notifySondenTyp) or ($notifySondenTyp == "disabled")) {
-                                    if($this->logLevel >= LogLevel::TEST) { $this->AddLog(__FUNCTION__, "Notify Filter 'SondenTyp' disabled"); }
+                                $altitudeFilter = false;
+                                $notifyAltitude = GetValue($this->GetMyVariable("id_notifyAltitude"));
+                                if($notifyAltitude == 0 ) { 
+                                    $altitudeFilter = true;
+                                } else if(empty($altitude)) {
+                                    $altitudeFilter = false;
+                                } else if(($notifyAltitude > 0) and ($altitude <= $notifyAltitude)) {
+                                    $altitudeFilter = true;
+                                } else if(($notifyAltitude < 0) and  ($altitude > abs($notifyAltitude))) {
+                                    $altitudeFilter = true;
                                 } else {
-                                    $typeValue = $dataArr["Type"];
-                                    if(!empty($typeValue)) {
-                                        $pos = strpos($notifySondenTyp, $typeValue);
-                                        if ($pos !== false) {
-                                            $doNotifyFor[] = $typeValue;
-                                        }
-                                    } else {
-                                        if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, "kein SondenTyp vorhanden: " . $rawData); }
-                                    }
+                                    $altitudeFilter = false;
                                 }
 
-                                $notifyMatch =  GetValue($this->GetMyVariable("id_notifyMatch1"));
-                                if(empty($notifyMatch) or ($notifyMatch == "disabled")) {
-                                    if($this->logLevel >= LogLevel::TEST) { $this->AddLog(__FUNCTION__, "Notify Filter 1 disabled"); }
-                                } else if ($notifyMatch == "*") {
-                                    SetValue($this->GetMyVariable("id_notifyMatch1"), "");                                    
-                                } else {
-                                    if(fnmatch($notifyMatch, $rawData, FNM_NOESCAPE)) {
-                                        $doNotifyFor[] = "Filter1_" . $notifyMatch;
-                                    }                                    
-                                }
-            
-                                $notifyMatch =  GetValue($this->GetMyVariable("id_notifyMatch2"));
-                                if(empty($notifyMatch) or ($notifyMatch == "disabled")) {
-                                    if($this->logLevel >= LogLevel::TEST) { $this->AddLog(__FUNCTION__, "Notify Filter 2 disabled"); }
-                                } else if ($notifyMatch == "*") {
-                                    SetValue($this->GetMyVariable("id_notifyMatch2"), "");
-                                } else {
-                                    if(fnmatch($notifyMatch, $rawData, FNM_NOESCAPE)) {
-                                        $doNotifyFor[] = "Filter2_" . $notifyMatch;
-                                    }                                    
-                                }
+                                if($altitudeFilter) {
+
+                                    $notifySondenTyp =  GetValue($this->GetMyVariable("id_notifySondenTyp"));
+                                    if(empty($notifySondenTyp) or ($notifySondenTyp == "disabled")) {
+                                        if($this->logLevel >= LogLevel::TEST) { $this->AddLog(__FUNCTION__, "Notify Filter 'SondenTyp' disabled"); }
+                                    } else {
+                                        $typeValue = $dataArr["Type"];
+                                        if(!empty($typeValue)) {
+                                            $pos = strpos($notifySondenTyp, $typeValue);
+                                            if ($pos !== false) {
+                                                $doNotifyFor[] = $typeValue;
+                                            }
+                                        } else {
+                                            if($this->logLevel >= LogLevel::WARN) { $this->AddLog(__FUNCTION__, "kein SondenTyp vorhanden: " . $rawData); }
+                                        }
+                                    }
+
+                                    $notifyMatch =  GetValue($this->GetMyVariable("id_notifyMatch1"));
+                                    if(empty($notifyMatch) or ($notifyMatch == "disabled")) {
+                                        if($this->logLevel >= LogLevel::TEST) { $this->AddLog(__FUNCTION__, "Notify Filter 1 disabled"); }
+                                    } else if ($notifyMatch == "*") {
+                                        SetValue($this->GetMyVariable("id_notifyMatch1"), "");                                    
+                                    } else {
+                                        if(fnmatch($notifyMatch, $rawData, FNM_NOESCAPE)) {
+                                            $doNotifyFor[] = "Filter1_" . $notifyMatch;
+                                        }                                    
+                                    }
+                
+                                    $notifyMatch =  GetValue($this->GetMyVariable("id_notifyMatch2"));
+                                    if(empty($notifyMatch) or ($notifyMatch == "disabled")) {
+                                        if($this->logLevel >= LogLevel::TEST) { $this->AddLog(__FUNCTION__, "Notify Filter 2 disabled"); }
+                                    } else if ($notifyMatch == "*") {
+                                        SetValue($this->GetMyVariable("id_notifyMatch2"), "");
+                                    } else {
+                                        if(fnmatch($notifyMatch, $rawData, FNM_NOESCAPE)) {
+                                            $doNotifyFor[] = "Filter2_" . $notifyMatch;
+                                        }                                    
+                                    }
+                                    
+                                    $notifyMatch =  GetValue($this->GetMyVariable("id_notifyMatch3"));
+                                    if(empty($notifyMatch) or ($notifyMatch == "disabled")) {
+                                        if($this->logLevel >= LogLevel::TEST) { $this->AddLog(__FUNCTION__, "Notify Filter 3 disabled"); }
+                                    } else if ($notifyMatch == "*") {
+                                        SetValue($this->GetMyVariable("id_notifyMatch3"), "");                                    
+                                    } else {
+                                        if(fnmatch($notifyMatch, $rawData, FNM_NOESCAPE)) {
+                                            $doNotifyFor[] = "Filter3_" . $notifyMatch;
+                                        }                                    
+                                    }    
                                 
-                                $notifyMatch =  GetValue($this->GetMyVariable("id_notifyMatch3"));
-                                if(empty($notifyMatch) or ($notifyMatch == "disabled")) {
-                                    if($this->logLevel >= LogLevel::TEST) { $this->AddLog(__FUNCTION__, "Notify Filter 3 disabled"); }
-                                } else if ($notifyMatch == "*") {
-                                    SetValue($this->GetMyVariable("id_notifyMatch3"), "");                                    
                                 } else {
-                                    if(fnmatch($notifyMatch, $rawData, FNM_NOESCAPE)) {
-                                        $doNotifyFor[] = "Filter3_" . $notifyMatch;
-                                    }                                    
-                                }                                
+                                    if($this->logLevel >= LogLevel::TEST) { $this->AddLog(__FUNCTION__, "Notify Altitude Filter not match"); }
+                                }       
 
                             } else {
                                 if($this->logLevel >= LogLevel::TEST) { $this->AddLog(__FUNCTION__, "Notify Distance Filter not match"); }
@@ -362,11 +381,13 @@ trait APRSProcessData {
                                     if (!is_null($clb)) {
                                         if ($clb < 0) {
                                             $notifyPG1ADW_Altitude = GetValue($this->GetMyVariable("id_notifyPG1ADW_Altitude"));
-                                            if ($altitude < $notifyPG1ADW_Altitude) {
-                                                $altitudeKey = round($altitude / 250) * 250;
-                                                $dataStoreKey = sprintf("%s_pnLanding_%s", $objName, $altitudeKey);
-                                                $notifyMsg = sprintf("!!! Possible Nearby LANDING !!!\nDatensatz der Sonde <b>'%s'</b> \n in %s km Entfernung und\n %s m Höhe wurde empfangen.", $objName, $distPG1ADW, $altitude);
-                                            }                         
+                                            if($notifyPG1ADW_Altitude > 0) {
+                                                if ($altitude < $notifyPG1ADW_Altitude) {
+                                                    $altitudeKey = round($altitude / 250) * 250;
+                                                    $dataStoreKey = sprintf("%s_pnLanding_%s", $objName, $altitudeKey);
+                                                    $notifyMsg = sprintf("!!! Possible Nearby LANDING !!!\nDatensatz der Sonde <b>'%s'</b> \n in %s km Entfernung und\n %s m Höhe wurde empfangen.", $objName, $distPG1ADW, $altitude);
+                                                }                         
+                                            } 
                                         }
                                     }
                                 }
@@ -438,7 +459,7 @@ trait APRSProcessData {
 		return $returnVal;
 	}
 
-    protected function FilterAPRSData($filterName, $rawData,  $distPG1ADW, $id_filterDistance, $id_filter1Match="", $id_filter2Match="", $id_filter3Match="") {
+    protected function FilterAPRSData($filterName, $rawData, $distPG1ADW, $altitude, $id_filterDistance, $id_filterAltitude, $id_filter1Match="", $id_filter2Match="", $id_filter3Match="") {
 
         $filterPassed = false; 
         $filterTxt = $filterName . " { ";
@@ -446,20 +467,51 @@ trait APRSProcessData {
         $filterDistance = GetValueFloat($this->GetMyVariable($id_filterDistance)); 
         if($filterDistance > 0) {                               
             if (is_null($distPG1ADW)) {
-                $filterPassed = true;
+                $filterPassed = false;
                 $filterTxt .= "'distPG1ADW' is NULL";
             } else {
                 if ($distPG1ADW <= $filterDistance) {
                     $filterPassed = true;
                     $filterTxt .= sprintf("distPG1ADW: %s km", $distPG1ADW);
                 } else {
-                    if($this->logLevel >= LogLevel::TEST) { $this->AddLog(__FUNCTION__, sprintf("%s Distance Filter '%s < %s' ", $filterName, $distPG1ADW, $filterDistance)); } 
+                    $filterPassed = false; 
+                    if($this->logLevel >= LogLevel::TEST) { $this->AddLog(__FUNCTION__, sprintf("%s Distance Filter '%s > %s' ", $filterName, $distPG1ADW, $filterDistance)); } 
                 }
             }
         } else {
             $filterPassed = true;
             $filterTxt .= sprintf("Distance Filter disabled", $distPG1ADW);
         }
+
+        $filterAltitude = GetValueInteger($this->GetMyVariable($id_filterAltitude)); 
+        if($filterAltitude != 0) {
+            if (is_null($altitude)) {
+                $filterPassed = false;
+                $filterTxt .= " | 'altitude' is NULL";
+            } else {
+                if ($filterAltitude > 0) {
+                    if ($altitude <= $filterAltitude) {
+                        $filterPassed = true;
+                        $filterTxt .= sprintf(" | Altitude 'UpTo'", $altitude);
+                    } else {
+                        $filterPassed = false; 
+                        if($this->logLevel >= LogLevel::TEST) { $this->AddLog(__FUNCTION__, sprintf("%s Altitude Filter '%s > %s' ", $filterName, $altitude, $filterAltitude)); } 
+                    }
+                } else {
+                    if ($altitude > abs($filterAltitude)) {
+                        $filterPassed = true;
+                        $filterTxt .= sprintf(" | Altitude 'HigherThan'", $altitude);
+                    } else {
+                        $filterPassed = false; 
+                        if($this->logLevel >= LogLevel::TEST) { $this->AddLog(__FUNCTION__, sprintf("%s Altitude Filter '%s > %s' ", $filterName, $altitude, $filterAltitude)); } 
+                    }
+                }
+            }
+        } else {
+            $filterPassed = true;
+            $filterTxt .= sprintf(" | Altitude Filter disabled", $distPG1ADW);
+        }
+
 
         if($filterPassed) {
 
