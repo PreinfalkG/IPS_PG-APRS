@@ -304,9 +304,9 @@ class APRS extends IPSModule {
 		SetValue($this->GetMyVariable("id_minMaxEnabled"), false);
 		SetValue($this->GetMyVariable("id_minMax_Distance"), 0);
 		SetValue($this->GetMyVariable("id_minMax_Altitude"), 0);
-		SetValue($this->GetMyVariable("id_minMax_Match1"), "");
-		SetValue($this->GetMyVariable("id_minMax_Match2"), "");
-		SetValue($this->GetMyVariable("id_minMax_Match3"), "");
+		SetValue($this->GetMyVariable("id_minMax_Match1"), "*:;V*403.4*RS41*");
+		SetValue($this->GetMyVariable("id_minMax_Match2"), "*:;MEA*403.5*");
+		SetValue($this->GetMyVariable("id_minMax_Match3"), "*:;V*404.1*");
 		SetValue($this->GetMyVariable("id_minMaxEnabledTemp"), false);
 		SetValue($this->GetMyVariable("id_minMaxStart"), 0);
 		SetValue($this->GetMyVariable("id_minMaxStop"), 0);
