@@ -56,7 +56,8 @@ class APRS extends IPSModule {
 
 		$this->RegisterPropertyString("telegramBotToken", "");
 		//$this->RegisterPropertyString("telegramChatId", "-4039965244");			//ADW20-Test
-		$this->RegisterPropertyString("telegramChatId", "-459309428");				//ADW20_Radiosonde
+		//$this->RegisterPropertyString("telegramChatId", "-459309428");			//ADW20_Radiosonde
+		$this->RegisterPropertyString("telegramChatId", "-4026157446");				//ADW20_RadiosondePG1
 		
 		$this->RegisterTimer('Timer_AutoUpdate_APRS', 0, 'APRS_Timer_AutoUpdate_APRS($_IPS[\'TARGET\']);');
 	}
