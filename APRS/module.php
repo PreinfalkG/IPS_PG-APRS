@@ -253,9 +253,16 @@ class APRS extends IPSModule {
 		SetValue($this->GetMyVariable("id_dataViewerEnabled"), false);
 		SetValue($this->GetMyVariable("id_dataViewer_Distance"), 0);
 		SetValue($this->GetMyVariable("id_dataViewer_Altitude"), 0);
-		SetValue($this->GetMyVariable("id_dataViewer_Match1"), "");
-		SetValue($this->GetMyVariable("id_dataViewer_Match2"), "");
-		SetValue($this->GetMyVariable("id_dataViewer_Match3"), "");
+		$match1 = GetValue($this->GetMyVariable("id_dataViewer_Match1"));
+		if(empty($match1)) {
+			SetValue($this->GetMyVariable("id_dataViewer_Match1"), "*:;V* 403.4*MHz*RS41*");
+			SetValue($this->GetMyVariable("id_dataViewer_Match2"), "*:;MEA* 403.5*MHz*M20*");
+			SetValue($this->GetMyVariable("id_dataViewer_Match3"), "*:;V* 404.1*MHz*RS41*");
+		} else {
+			SetValue($this->GetMyVariable("id_dataViewer_Match1"), "");
+			SetValue($this->GetMyVariable("id_dataViewer_Match2"), "");
+			SetValue($this->GetMyVariable("id_dataViewer_Match3"), "");
+		}
 		SetValue($this->GetMyVariable("id_dataViewer_StopOnNextMatch"), false);
 		IPS_SetName($this->GetMyVariable("id_dataViewer"), "Data Viewer");
 		SetValue($this->GetMyVariable("id_dataViewerCnt"), 0);
@@ -270,9 +277,16 @@ class APRS extends IPSModule {
 		SetValue($this->GetMyVariable("id_notifyAltitude"), 0);
 		SetValue($this->GetMyVariable("id_notifyOzon"), false);
 		SetValue($this->GetMyVariable("id_notifySondenTyp"), "");
-		SetValue($this->GetMyVariable("id_notifyMatch1"), "");
-		SetValue($this->GetMyVariable("id_notifyMatch2"), "");
-		SetValue($this->GetMyVariable("id_notifyMatch3"), "");
+		$match1 = GetValue($this->GetMyVariable("id_notifyMatch1"));
+		if(empty($match1)) {
+			SetValue($this->GetMyVariable("id_notifyMatch1"), "*:;V* 403.4*MHz*RS41*");
+			SetValue($this->GetMyVariable("id_notifyMatch2"), "*:;MEA* 403.5*MHz*M20*");
+			SetValue($this->GetMyVariable("id_notifyMatch3"), "*:;V* 404.1*MHz*RS41*");
+		} else {
+			SetValue($this->GetMyVariable("id_notifyMatch1"), "");
+			SetValue($this->GetMyVariable("id_notifyMatch2"), "");
+			SetValue($this->GetMyVariable("id_notifyMatch3"), "");
+		}
 		SetValue($this->GetMyVariable("id_notifyMessage"), "-");
 		SetValue($this->GetMyVariable("id_notifyCnt"), 0);
 		SetValue($this->GetMyVariable("id_notifyJsonStore"), "");
@@ -289,7 +303,6 @@ class APRS extends IPSModule {
 		SetValue($this->GetMyVariable("id_notifyPG1ADW_Message"), "-");
 		SetValue($this->GetMyVariable("id_notifyPG1ADW_JsonStore"), "");
 		SetValue($this->GetMyVariable("id_notifyPG1ADW_JsonStoreCnt"), 0);
-
 	}
 
 	public function ResetMinMaxVariables(string $source) {
@@ -302,11 +315,18 @@ class APRS extends IPSModule {
 		}
 		if ($this->logLevel >= LogLevel::INFO) { $this->AddLog(__FUNCTION__, sprintf('RESET MinMaxVariables {DummyId: %s}', $id_minMaxData)); }
 		SetValue($this->GetMyVariable("id_minMaxEnabled"), false);
-		SetValue($this->GetMyVariable("id_minMax_Distance"), 0);
+		SetValue($this->GetMyVariable("id_minMax_Distance"), 400);
 		SetValue($this->GetMyVariable("id_minMax_Altitude"), 0);
-		SetValue($this->GetMyVariable("id_minMax_Match1"), "*:;V*403.4*RS41*");
-		SetValue($this->GetMyVariable("id_minMax_Match2"), "*:;MEA*403.5*");
-		SetValue($this->GetMyVariable("id_minMax_Match3"), "*:;V*404.1*");
+		$match1 = GetValue($this->GetMyVariable("id_minMax_Match1"));
+		if(empty($match1)) {
+			SetValue($this->GetMyVariable("id_minMax_Match1"), "*:;V* 403.4*MHz*RS41*");
+			SetValue($this->GetMyVariable("id_minMax_Match2"), "*:;MEA* 403.5*MHz*M20*");
+			SetValue($this->GetMyVariable("id_minMax_Match3"), "*:;V* 404.1*MHz*RS41*");
+		} else {
+			SetValue($this->GetMyVariable("id_minMax_Match1"), "");
+			SetValue($this->GetMyVariable("id_minMax_Match2"), "");
+			SetValue($this->GetMyVariable("id_minMax_Match3"), "");
+		}
 		SetValue($this->GetMyVariable("id_minMaxEnabledTemp"), false);
 		SetValue($this->GetMyVariable("id_minMaxStart"), 0);
 		SetValue($this->GetMyVariable("id_minMaxStop"), 0);
