@@ -327,6 +327,8 @@ class APRS extends IPSModule {
 			SetValue($this->GetMyVariable("id_minMax_Match2"), "");
 			SetValue($this->GetMyVariable("id_minMax_Match3"), "");
 		}
+
+		IPS_SetName($this->GetMyVariable("id_minMaxData"), "MinMax Data");
 		SetValue($this->GetMyVariable("id_minMaxEnabledTemp"), false);
 		SetValue($this->GetMyVariable("id_minMaxStart"), 0);
 		SetValue($this->GetMyVariable("id_minMaxStop"), 0);
