@@ -255,9 +255,9 @@ class APRS extends IPSModule {
 		SetValue($this->GetMyVariable("id_dataViewer_Altitude"), 0);
 		$match1 = GetValue($this->GetMyVariable("id_dataViewer_Match1"));
 		if(empty($match1)) {
-			SetValue($this->GetMyVariable("id_dataViewer_Match1"), "*:;V* 403.4*MHz*RS41*");
-			SetValue($this->GetMyVariable("id_dataViewer_Match2"), "*:;MEA* 403.5*MHz*M20*");
-			SetValue($this->GetMyVariable("id_dataViewer_Match3"), "*:;V* 404.1*MHz*RS41*");
+			SetValue($this->GetMyVariable("id_dataViewer_Match1"), "*:;V* 403.40*MHz*RS41*");
+			SetValue($this->GetMyVariable("id_dataViewer_Match2"), "*:;MEA* 403.50*MHz*M20*");
+			SetValue($this->GetMyVariable("id_dataViewer_Match3"), "*:;V* 404.10*MHz*RS41*");
 		} else {
 			SetValue($this->GetMyVariable("id_dataViewer_Match1"), "");
 			SetValue($this->GetMyVariable("id_dataViewer_Match2"), "");
@@ -279,9 +279,9 @@ class APRS extends IPSModule {
 		SetValue($this->GetMyVariable("id_notifySondenTyp"), "");
 		$match1 = GetValue($this->GetMyVariable("id_notifyMatch1"));
 		if(empty($match1)) {
-			SetValue($this->GetMyVariable("id_notifyMatch1"), "*:;V* 403.4*MHz*RS41*");
-			SetValue($this->GetMyVariable("id_notifyMatch2"), "*:;MEA* 403.5*MHz*M20*");
-			SetValue($this->GetMyVariable("id_notifyMatch3"), "*:;V* 404.1*MHz*RS41*");
+			SetValue($this->GetMyVariable("id_notifyMatch1"), "*:;V* 403.40*MHz*RS41*");
+			SetValue($this->GetMyVariable("id_notifyMatch2"), "*:;MEA* 403.50*MHz*M20*");
+			SetValue($this->GetMyVariable("id_notifyMatch3"), "*:;V* 404.10*MHz*RS41*");
 		} else {
 			SetValue($this->GetMyVariable("id_notifyMatch1"), "");
 			SetValue($this->GetMyVariable("id_notifyMatch2"), "");
@@ -319,9 +319,9 @@ class APRS extends IPSModule {
 		SetValue($this->GetMyVariable("id_minMax_Altitude"), 0);
 		$match1 = GetValue($this->GetMyVariable("id_minMax_Match1"));
 		if(empty($match1)) {
-			SetValue($this->GetMyVariable("id_minMax_Match1"), "*:;V* 403.4*MHz*RS41*");
-			SetValue($this->GetMyVariable("id_minMax_Match2"), "*:;MEA* 403.5*MHz*M20*");
-			SetValue($this->GetMyVariable("id_minMax_Match3"), "*:;V* 404.1*MHz*RS41*");
+			SetValue($this->GetMyVariable("id_minMax_Match1"), "*:;V* 403.40*MHz*RS41*");
+			SetValue($this->GetMyVariable("id_minMax_Match2"), "*:;MEA* 403.50*MHz*M20*");
+			SetValue($this->GetMyVariable("id_minMax_Match3"), "*:;V* 404.10*MHz*RS41*");
 		} else {
 			SetValue($this->GetMyVariable("id_minMax_Match1"), "");
 			SetValue($this->GetMyVariable("id_minMax_Match2"), "");
